@@ -5,14 +5,15 @@ Memakai server API yang sama dengan Edisi Modern (lisensi, nomor akta, repertori
 
 | Grup ribbon | Tombol |
 |---|---|
-| Akta | Akta Kuasa, Akta PPJB, Isi Data Pihak, Jadikan Salinan (dokumen baru), Catat Repertorium |
-| Terbilang | Tanggal, Jam, Rupiah, Angka, Terbilangkan Pilihan |
-| Garis Akta | Pasang Garis, Hapus Garis |
+| Akta | Akta Baru (menu 6 template), Isi Data Pihak (cek NIK), Jadikan Salinan (dokumen baru), Catat Repertorium |
+| Terbilang | Tanggal, Pukul, Rupiah, Luas M², Persen, Angka, Terbilangkan Pilihan |
+| Garis & Halaman | Pasang Garis, Hapus Garis, Halaman Akta |
+| Periksa | Periksa Akta (isian kosong, garis, nomor) |
 | Aktara | Lisensi (aktivasi, alamat server) |
 
 ## Status uji (Word 2010, 11-11-2026)
 Semua tombol lulus diuji langsung di Word 2010: aktivasi lisensi, Akta Kuasa & PPJB (nomor dari server),
-Isi Data Pihak, terbilang, garis akta, Catat Repertorium, Jadikan Salinan. Tes otomatis: 28 lulus. Tombol Halaman Akta diuji 11-11-2026.
+Isi Data Pihak, terbilang, garis akta, Catat Repertorium, Jadikan Salinan. Tes otomatis: 34 lulus. Menu Akta Baru (6 template), label isian lengkap, pemeriksaan NIK, dan Periksa Akta diuji 11-11-2026.
 
 `dist/Aktara.dotm` di repo sudah berisi kode VBA — siap dipasang tanpa langkah impor.
 
