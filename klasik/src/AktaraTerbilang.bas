@@ -80,7 +80,7 @@ Public Function TerbilangJam(ByVal jam As Long, ByVal menit As Long, Optional By
         " lebih " & Terbilang(menit) & " menit " & nama & ")"
 End Function
 
- Format praktik akta: "Rp.367.000.000,- (tiga ratus enam puluh tujuh juta rupiah)"
+' Format praktik akta: "Rp.367.000.000,- (tiga ratus enam puluh tujuh juta rupiah)"
 Public Function TerbilangRupiah(ByVal n As Double) As String
     TerbilangRupiah = "Rp." & Ribuan(n) & ",- (" & Terbilang(n) & " rupiah)"
 End Function
