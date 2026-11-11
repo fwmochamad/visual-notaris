@@ -29,6 +29,9 @@ jobs:
           cp -r addin/src/* _site/
           echo "window.AKTARA_API = \"$AKTARA_API\";" > _site/config.js
           sed "s#https://localhost:3000#$PAGES_URL#g" addin/manifest.xml > _site/manifest.xml
+          # Cegah cache lama: tambahkan versi commit ke setiap script
+          V=${GITHUB_SHA::8}
+          sed -i -E "s#src=\"([a-z]+\.js)\"#src=\"\1?v=$V\"#g" _site/taskpane.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
