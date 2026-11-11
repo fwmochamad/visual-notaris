@@ -94,14 +94,18 @@ Private Sub PastikanStyle()
         lebar = .PageWidth - .LeftMargin - .RightMargin
     End With
     st.ParagraphFormat.TabStops.ClearAll
-    st.ParagraphFormat.TabStops.Add Position:=lebar, Alignment:=2, Leader:=5 ' wdAlignTabRight, wdTabLeaderDashes
+    st.ParagraphFormat.TabStops.Add Position:=lebar, Alignment:=2, Leader:=2 ' wdAlignTabRight, wdTabLeaderDashes (2 = strip)
 End Sub
 
 Public Sub PasangGaris()
     PastikanStyle
-    Dim p As Paragraph, n As Long, r As Range
+    Dim p As Paragraph, n As Long, r As Range, rata As Long, tebal As Long
     For Each p In Selection.Paragraphs
+        ' Pertahankan perataan & huruf tebal (mis. judul akta tetap di tengah)
+        rata = p.Alignment: tebal = p.Range.Font.Bold
         p.Style = ActiveDocument.Styles(STYLE_GARIS)
+        p.Alignment = rata
+        If tebal = -1 Then p.Range.Font.Bold = True
         Set r = p.Range
         r.MoveEnd 1, -1 ' tanpa tanda paragraf
         If Right$(r.Text, 1) <> vbTab Then r.InsertAfter vbTab: n = n + 1
@@ -177,8 +181,8 @@ End Sub
 
 ' Ubah setiap {FIELD} menjadi content control ber-tag (Word 2007+)
 Private Sub BungkusIsian(ByVal area As Range)
-    Dim r As Range, tag As String, cc As ContentControl, batas As Long
-    batas = area.End
+    ' area.End ikut bergeser otomatis saat content control ditambahkan
+    Dim r As Range, tag As String, cc As ContentControl
     Set r = area.Duplicate
     With r.Find
         .ClearFormatting
@@ -188,13 +192,13 @@ Private Sub BungkusIsian(ByVal area As Range)
         .Wrap = 0 ' wdFindStop
     End With
     Do While r.Find.Execute
-        If r.Start >= batas Then Exit Do
+        If r.Start >= area.End Then Exit Do
         tag = Mid$(r.Text, 2, Len(r.Text) - 2)
         Set cc = ActiveDocument.ContentControls.Add(1, r) ' wdContentControlText
         cc.Tag = tag
         cc.Title = Replace(tag, "_", " ")
-        r.SetRange cc.Range.End + 1, batas
-        If r.Start >= batas Then Exit Do
+        r.SetRange cc.Range.End + 1, area.End
+        If r.Start >= area.End Then Exit Do
         With r.Find
             .Text = "\{[A-Z0-9_]@\}"
             .MatchWildcards = True
