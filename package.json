@@ -1,0 +1,12 @@
+{
+  "name": "aktara",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "certs": "npx -y office-addin-dev-certs install",
+    "dev": "node --no-warnings scripts/dev.js",
+    "sideload": "npx -y office-addin-debugging start addin/manifest.xml desktop --no-debug --no-live-reload",
+    "stop": "npx -y office-addin-debugging stop addin/manifest.xml",
+    "test": "cd addin && npm test && cd ../server && npm test"
+  }
+}

@@ -16,6 +16,12 @@ tanpa aplikasi baru.
 cd addin && npm test
 cd server && npm test
 ```
-Cara memasang add-in ke Word: lihat `addin/README.md`.
+## Uji di Word (Windows)
+```
+npm run certs      # sekali saja: pasang sertifikat HTTPS lokal
+npm run dev        # nyalakan add-in (port 3000) + API (port 8080)
+npm run sideload   # di jendela lain: daftarkan add-in ke Word dan buka Word
+```
+Di Word: tab Home → **Aktara** → tab Lisensi → kode `AKT-DEV0-0000-0000-0001` → Aktifkan.
 
 Status: v0.1 — add-in tersambung ke server untuk aktivasi lisensi, nomor akta, dan repertorium; mode offline tetap jalan.
