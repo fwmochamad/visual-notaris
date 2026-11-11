@@ -47,10 +47,23 @@
   }
   /* "72 M² (tujuh puluh dua Meter persegi)" */
   function luas(n) { return n + " M² (" + terbilang(n) + " Meter persegi)"; }
+  /* Desimal: "2,5" -> "dua koma lima" (digit di belakang koma dibaca satu per satu) */
+  function desimal(teks) {
+    var p = String(teks).replace(".", ",").split(",");
+    var h = terbilang(parseInt(p[0] || "0", 10));
+    if (p[1]) {
+      var d = [];
+      for (var i = 0; i < p[1].length; i++) d.push(p[1].charAt(i) === "0" ? "nol" : terbilang(+p[1].charAt(i)));
+      h += " koma " + d.join(" ");
+    }
+    return h;
+  }
+  /* "12,5% (dua belas koma lima persen)" */
+  function persen(teks) { return String(teks).replace(".", ",") + "% (" + desimal(teks) + " persen)"; }
   /* Nomor akta: "22.-" */
   function nomorAkta(n) { return n + ".-"; }
   function angka(n) { return n + " (" + terbilang(n) + ")"; }
 
-  var api = { terbilang: terbilang, tanggal: tanggal, jam: jam, rupiah: rupiah, angka: angka, luas: luas, nomorAkta: nomorAkta, BULAN: BULAN };
+  var api = { terbilang: terbilang, tanggal: tanggal, jam: jam, rupiah: rupiah, angka: angka, luas: luas, nomorAkta: nomorAkta, desimal: desimal, persen: persen, BULAN: BULAN };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.Terbilang = api;
 })(this);

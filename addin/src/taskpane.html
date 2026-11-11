@@ -6,81 +6,131 @@
 <title>Aktara</title>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <script src="terbilang.js"></script>
+<script src="validasi.js"></script>
 <script src="config.js"></script>
 <script src="templates.js"></script>
 <script src="server.js"></script>
 <script src="akta.js"></script>
 <style>
-  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; margin: 0; color: #222; }
-  header { background: #1f3a5f; color: #fff; padding: 10px 12px; font-weight: 600; }
-  nav { display: flex; border-bottom: 1px solid #ccd; }
-  .tab { flex: 1; padding: 8px 0; text-align: center; cursor: pointer; color: #555; }
-  .tab.on { color: #1f3a5f; border-bottom: 3px solid #1f3a5f; font-weight: 600; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; margin: 0; color: #1f2933; background: #fff; }
+  svg.i { width: 16px; height: 16px; vertical-align: -3px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  header { background: #1f3a5f; color: #fff; padding: 10px 12px; font-weight: 600; font-size: 14px; }
+  header svg.i { width: 18px; height: 18px; margin-right: 6px; }
+  nav { display: flex; border-bottom: 1px solid #d5dbe3; background: #f7f9fb; }
+  .tab { flex: 1; padding: 7px 0 6px; text-align: center; cursor: pointer; color: #5b6776; font-size: 11px; border-bottom: 3px solid transparent; }
+  .tab svg.i { display: block; margin: 0 auto 2px; width: 18px; height: 18px; }
+  .tab.on { color: #1f3a5f; border-bottom-color: #1f3a5f; font-weight: 600; background: #fff; }
   section { padding: 12px; display: none; }
-  label { display: block; margin: 8px 0 3px; color: #444; }
-  input, select { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid #bbc; border-radius: 3px; font-size: 13px; }
-  button { width: 100%; margin-top: 8px; padding: 8px; border: 0; border-radius: 3px; background: #1f3a5f; color: #fff; font-size: 13px; cursor: pointer; }
-  button.alt { background: #e6eaf0; color: #1f3a5f; }
+  h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #5b6776; margin: 14px 0 6px; }
+  h3:first-child { margin-top: 0; }
+  label { display: block; margin: 8px 0 3px; color: #3e4c59; }
+  input, select { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid #bcc5d0; border-radius: 4px; font-size: 13px; }
+  input.salah { border-color: #c0392b; background: #fdf3f2; }
+  button { width: 100%; margin-top: 8px; padding: 8px; border: 0; border-radius: 4px; background: #1f3a5f; color: #fff; font-size: 13px; cursor: pointer; text-align: left; }
+  button svg.i { margin-right: 6px; }
+  button.alt { background: #e8edf3; color: #1f3a5f; }
+  button:hover { filter: brightness(1.08); }
   .row { display: flex; gap: 6px; } .row > * { flex: 1; }
-  .hint { color: #777; font-size: 12px; margin-top: 4px; }
-  .status { margin: 0; padding: 8px 12px; font-size: 12px; border-top: 1px solid #dde; }
-  .ok { background: #eef6ee; color: #235c23; } .err { background: #fbecec; color: #8a1f1f; }
+  .hint { color: #7b8794; font-size: 12px; margin-top: 4px; }
+  .peringatan { color: #c0392b; font-size: 12px; margin-top: 3px; }
+  .info { color: #1f6f3f; font-size: 12px; margin-top: 3px; }
+  ul.cek { padding-left: 18px; margin: 6px 0; } ul.cek li { margin: 3px 0; }
+  table.rep { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+  table.rep td, table.rep th { border-bottom: 1px solid #e4e7eb; padding: 4px 3px; text-align: left; }
+  .status { margin: 0; padding: 8px 12px; font-size: 12px; border-top: 1px solid #dde3ea; }
+  .ok { background: #eef7f0; color: #1f6f3f; } .err { background: #fbecec; color: #8a1f1f; }
 </style>
 </head>
 <body>
-<header>Aktara</header>
+<!-- Ikon garis sederhana (inline SVG, tanpa berkas eksternal) -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <symbol id="ic-akta" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+  <symbol id="ic-angka" viewBox="0 0 24 24"><path d="M4 7h3v10M4 17h6M13 8a2.5 2.5 0 0 1 5 0c0 2-5 4-5 9h5"/></symbol>
+  <symbol id="ic-pihak" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14c2.8 0 5 2.2 5 5"/></symbol>
+  <symbol id="ic-garis" viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h16M4 18h8"/><path d="M15 10h5M13 18h7" stroke-dasharray="2 2"/></symbol>
+  <symbol id="ic-cek" viewBox="0 0 24 24"><path d="M9 11l2.5 2.5L16 9"/><rect x="4" y="4" width="16" height="16" rx="2"/></symbol>
+  <symbol id="ic-kunci" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l3 3M14 9l2 2"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="ic-salin" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="ic-buku" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 7h6"/></symbol>
+  <symbol id="ic-unduh" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="ic-tulis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>
+  <symbol id="ic-hapus" viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="ic-kalender" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="ic-jam" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol id="ic-logo" viewBox="0 0 24 24"><path d="M12 3l8 18M12 3L4 21M7.5 14h9"/></symbol>
+</svg>
+
+<header><svg class="i"><use xlink:href="#ic-logo"/></svg>Aktara</header>
 <nav>
-  <div class="tab on" data-p="pAkta">Akta</div>
-  <div class="tab" data-p="pTerbilang">Terbilang</div>
-  <div class="tab" data-p="pPihak">Pihak</div>
-  <div class="tab" data-p="pGaris">Garis</div>
-  <div class="tab" data-p="pLisensi">Lisensi</div>
+  <div class="tab on" data-p="pAkta"><svg class="i"><use xlink:href="#ic-akta"/></svg>Akta</div>
+  <div class="tab" data-p="pTerbilang"><svg class="i"><use xlink:href="#ic-angka"/></svg>Terbilang</div>
+  <div class="tab" data-p="pPihak"><svg class="i"><use xlink:href="#ic-pihak"/></svg>Pihak</div>
+  <div class="tab" data-p="pGaris"><svg class="i"><use xlink:href="#ic-garis"/></svg>Garis</div>
+  <div class="tab" data-p="pCek"><svg class="i"><use xlink:href="#ic-cek"/></svg>Periksa</div>
+  <div class="tab" data-p="pLisensi"><svg class="i"><use xlink:href="#ic-kunci"/></svg>Lisensi</div>
 </nav>
 
 <section id="pAkta" style="display:block">
+  <h3>Akta baru</h3>
   <label>Jenis akta</label>
-  <select id="inTemplate"><option value="kuasa">Kuasa</option><option value="jualbeli">Pengikatan Jual Beli</option></select>
-  <button id="btnTemplate">Buat akta baru</button>
-  <div class="hint">Nomor akta otomatis bertambah setiap akta baru.</div>
-  <label>Kedudukan notaris</label>
+  <select id="inTemplate"></select>
+  <button id="btnTemplate"><svg class="i"><use xlink:href="#ic-plus"/></svg>Buat akta baru</button>
+  <div class="hint">Nomor akta diambil otomatis dari server kantor.</div>
+  <h3>Minuta &amp; salinan</h3>
+  <label>Tempat kedudukan notaris</label>
   <input id="inKedudukan" placeholder="mis. Kota Bandung">
-  <button id="btnSalinan" class="alt">Jadikan SALINAN</button>
-  <button id="btnRepertorium" class="alt">Catat ke repertorium</button>
-  <div class="hint">Klik setelah akta final dan data pihak terisi.</div>
+  <button id="btnSalinan" class="alt"><svg class="i"><use xlink:href="#ic-salin"/></svg>Jadikan SALINAN</button>
+  <h3>Repertorium (buku daftar akta)</h3>
+  <button id="btnRepertorium" class="alt"><svg class="i"><use xlink:href="#ic-buku"/></svg>Catat akta ini ke repertorium</button>
+  <button id="btnLihatRep" class="alt"><svg class="i"><use xlink:href="#ic-unduh"/></svg>Lihat repertorium bulan ini</button>
+  <div id="daftarRep"></div>
 </section>
 
 <section id="pTerbilang">
+  <h3>Tanggal &amp; waktu</h3>
   <label>Tanggal</label><input id="inTanggal" type="date">
-  <button id="btnTanggal">Sisipkan tanggal</button>
-  <label>Jam</label>
-  <div class="row"><input id="inJam" type="time"><select id="inZona"><option>WIB</option><option>WITA</option><option>WIT</option></select></div>
-  <button id="btnJam">Sisipkan jam</button>
-  <label>Angka / nominal</label><input id="inRupiah" placeholder="1500000">
-  <div class="row"><button id="btnRupiah">Rupiah</button><button id="btnLuas" class="alt">Luas M²</button><button id="btnAngka" class="alt">Angka</button></div>
+  <button id="btnTanggal"><svg class="i"><use xlink:href="#ic-kalender"/></svg>Sisipkan tanggal</button>
+  <label>Pukul</label>
+  <div class="row"><input id="inJam" type="time"><select id="inZona"><option value="WIB">WIB — Waktu Indonesia Barat</option><option value="WITA">WITA — Waktu Indonesia Tengah</option><option value="WIT">WIT — Waktu Indonesia Timur</option></select></div>
+  <button id="btnJam"><svg class="i"><use xlink:href="#ic-jam"/></svg>Sisipkan pukul</button>
+  <h3>Angka</h3>
+  <label>Angka / nominal / luas / persen</label><input id="inRupiah" placeholder="mis. 1500000 atau 12,5">
+  <div class="row"><button id="btnRupiah">Rupiah</button><button id="btnLuas" class="alt">Luas M²</button></div>
+  <div class="row"><button id="btnPersen" class="alt">Persen</button><button id="btnAngka" class="alt">Angka</button></div>
+  <h3>Dari dokumen</h3>
+  <button id="btnPilihan" class="alt"><svg class="i"><use xlink:href="#ic-tulis"/></svg>Terbilangkan angka terpilih</button>
+  <div class="hint">Blok angka di dokumen (mis. 2026), lalu klik: menjadi "2026 (dua ribu dua puluh enam)".</div>
 </section>
 
 <section id="pPihak">
-  <button id="btnMuat" class="alt">Muat isian dari dokumen</button>
+  <button id="btnMuat" class="alt"><svg class="i"><use xlink:href="#ic-unduh"/></svg>Muat isian dari dokumen</button>
   <div id="daftarIsian"><p class="hint">Klik "Muat isian" setelah membuat akta.</p></div>
-  <button id="btnIsi">Isi ke dokumen</button>
-  <div class="hint">Data yang sama terisi di semua tempat dalam akta.</div>
+  <button id="btnIsi"><svg class="i"><use xlink:href="#ic-tulis"/></svg>Isi ke dokumen</button>
+  <div class="hint">Data yang sama terisi di semua tempat dalam akta. Nomor Induk Kependudukan (NIK) diperiksa otomatis.</div>
 </section>
 
 <section id="pGaris">
-  <div class="hint">Pilih paragraf (atau Ctrl+A untuk seluruh akta), lalu klik. Garis strip mengisi sisa baris dan menyesuaikan sendiri saat teks diedit.</div>
-  <button id="btnGaris">Pasang garis akta</button>
-  <button id="btnHapusGaris" class="alt">Hapus garis</button>
+  <div class="hint">Pilih paragraf (atau Ctrl+A untuk seluruh akta), lalu klik. Garis strip mengisi sisa baris dan menyesuaikan sendiri saat teks diedit. Judul (rata tengah) dan paragraf kosong dilewati.</div>
+  <button id="btnGaris"><svg class="i"><use xlink:href="#ic-garis"/></svg>Pasang garis akta</button>
+  <button id="btnHapusGaris" class="alt"><svg class="i"><use xlink:href="#ic-hapus"/></svg>Hapus garis</button>
+</section>
+
+<section id="pCek">
+  <div class="hint">Periksa akta sebelum dicetak: isian yang masih kosong, paragraf tanpa garis, dan nomor akta.</div>
+  <button id="btnCek"><svg class="i"><use xlink:href="#ic-cek"/></svg>Periksa akta</button>
+  <div id="hasilCek"></div>
 </section>
 
 <section id="pLisensi">
   <p id="infoLisensi" class="hint">Memeriksa lisensi…</p>
   <div id="formAktivasi">
     <label>Kode lisensi</label><input id="inKode" placeholder="AKT-XXXX-XXXX-XXXX-XXXX">
-    <label>Nama komputer</label><input id="inNamaPc" placeholder="mis. PC Resepsionis">
-    <button id="btnAktivasi">Aktifkan</button>
+    <label>Nama komputer</label><input id="inNamaPc" placeholder="mis. Komputer Resepsionis">
+    <button id="btnAktivasi"><svg class="i"><use xlink:href="#ic-kunci"/></svg>Aktifkan</button>
   </div>
   <label>Alamat server</label><input id="inServer">
-  <div class="hint">Biarkan bawaan kecuali kantor memakai server lokal.</div>
+  <div class="hint">Biarkan bawaan kecuali kantor memakai server sendiri.</div>
 </section>
 
 <p id="status" class="status ok">Memuat…</p>

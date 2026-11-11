@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sumber ribbon. customUI.xml DIHASILKAN oleh scripts/gen_templates.py (menu Akta Baru dari templates/akta.json). -->
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="AkOnLoad">
+  <ribbon>
+    <tabs>
+      <tab id="tabAktara" label="Aktara">
+        <group id="grpAkta" label="Akta">
+          <menu id="mnuAkta" label="Akta Baru" size="large" imageMso="FileNew" screentip="Buat akta dari template; nomor akta otomatis dari server">
+<!--MENU_TEMPLATE-->
+          </menu>
+          <button id="btnIsi" label="Isi Data Pihak" size="large" imageMso="AddressBook" onAction="AkIsiData" screentip="Isi data sekali, terisi di semua tempat; Nomor Induk Kependudukan (NIK) diperiksa"/>
+          <button id="btnSalinan" label="Jadikan Salinan" size="large" imageMso="Copy" onAction="AkSalinan" screentip="Buat SALINAN di dokumen baru; minuta tidak diubah"/>
+          <button id="btnRep" label="Catat Repertorium" size="large" imageMso="TableInsert" onAction="AkRepertorium" screentip="Catat akta ke repertorium (buku daftar akta) di server"/>
+        </group>
+        <group id="grpTerbilang" label="Terbilang">
+          <button id="btnTgl" label="Tanggal" imageMso="DateAndTimeInsert" onAction="AkTanggal"/>
+          <button id="btnJam" label="Pukul" imageMso="DateAndTimeInsert" onAction="AkJam"/>
+          <button id="btnRp" label="Rupiah" imageMso="AccountingFormat" onAction="AkRupiah"/>
+          <button id="btnLuas" label="Luas M²" imageMso="TableInsert" onAction="AkLuas"/>
+          <button id="btnPersen" label="Persen" imageMso="PercentStyle" onAction="AkPersen"/>
+          <button id="btnAngka" label="Angka" imageMso="Numbering" onAction="AkAngka"/>
+          <button id="btnPilihan" label="Terbilangkan Pilihan" imageMso="ReplaceDialog" onAction="AkTerbilangPilihan" screentip="Blok angka di dokumen lalu klik"/>
+        </group>
+        <group id="grpGaris" label="Garis &amp; Halaman">
+          <button id="btnGaris" label="Pasang Garis" size="large" imageMso="BorderBottom" onAction="AkGaris" screentip="Pilih paragraf (Ctrl+A untuk semua) lalu klik"/>
+          <button id="btnHapusGaris" label="Hapus Garis" size="large" imageMso="BorderNone" onAction="AkHapusGaris"/>
+          <button id="btnHalaman" label="Halaman Akta" size="large" imageMso="PageSetupPageDialog" onAction="AkHalaman" screentip="A4, margin kiri 5,5 cm, kanan 1 cm"/>
+        </group>
+        <group id="grpPeriksa" label="Periksa">
+          <button id="btnCek" label="Periksa Akta" size="large" imageMso="FileDocumentInspect" onAction="AkCek" screentip="Isian kosong, paragraf tanpa garis, nomor akta"/>
+        </group>
+        <group id="grpLisensi" label="Aktara">
+          <button id="btnLisensi" label="Lisensi" size="large" imageMso="AdpPrimaryKey" onAction="AkLisensi"/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>

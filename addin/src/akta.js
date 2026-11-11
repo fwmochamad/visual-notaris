@@ -1,6 +1,6 @@
 /* Logika Word untuk Aktara. Hanya memakai WordApi 1.1 agar jalan di Word 2016+ (Windows/Mac), 2019, 2021, 2024, 365 dan Word Online.
    Kode ES5 tanpa arrow function / async, karena Word 2016 MSI di Windows memakai engine IE11. */
-(function () {
+(function (root) {
   "use strict";
   var STYLE = "Akta Garis";
   // Paragraph style dengan tab kanan ber-leader strip di batas kanan teks: garis otomatis mengikuti panjang teks setelah diedit.
@@ -86,6 +86,9 @@
     }).catch(fail);
   }
 
+  function label(tag) { return (root.AktaraLabel && AktaraLabel[tag]) || tag.replace(/_/g, " "); }
+  function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); }
+
   /* 3. Template akta (dari templates.js, sumber: templates/akta.json) dengan isian ber-tag */
   var aktaTerakhir = null;
   function buatTemplate(kode, nomorAngka) {
@@ -111,7 +114,7 @@
           var r = last.insertText(potong[k], "End");
           if (k % 2 === 1) {
             var tag = potong[k].slice(1, -1);
-            var cc = r.insertContentControl(); cc.tag = tag; cc.title = tag.replace(/_/g, " ");
+            var cc = r.insertContentControl(); cc.tag = tag; cc.title = label(tag);
           }
         }
         paras.push(last);
@@ -128,21 +131,33 @@
     }).catch(fail);
   }
 
-  /* Muat daftar isian unik dari dokumen ke tab Pihak */
+  /* Muat daftar isian unik dari dokumen ke tab Pihak (label lengkap, NIK divalidasi) */
   function muatIsian() {
     Word.run(function (ctx) {
       var cc = ctx.document.contentControls; cc.load("items/tag,items/title,items/text");
       return ctx.sync().then(function () {
-        var wadah = document.getElementById("daftarIsian"), sudah = {}, html = "";
+        var wadah = document.getElementById("daftarIsian"), sudah = {}, html = "", n = 0;
         cc.items.forEach(function (c) {
-          if (!c.tag || sudah[c.tag]) return; sudah[c.tag] = 1;
+          if (!c.tag || sudah[c.tag]) return; sudah[c.tag] = 1; n++;
           var isi = /^\{.*\}$/.test(c.text) ? "" : c.text;
-          html += '<label>' + (c.title || c.tag) + '</label><input data-tag="' + c.tag + '" value="' + isi.replace(/"/g, "&quot;") + '">';
+          html += '<label>' + esc(label(c.tag)) + '</label><input data-tag="' + esc(c.tag) + '" value="' + esc(isi) + '">';
+          if (/^NIK_/.test(c.tag)) html += '<div class="peringatan" data-cek="' + esc(c.tag) + '"></div>';
         });
         wadah.innerHTML = html || '<p class="hint">Belum ada isian. Buat akta dari template dulu.</p>';
-        status(Object.keys(sudah).length + " isian dimuat.");
+        var niks = wadah.querySelectorAll('input[data-tag^="NIK_"]');
+        for (var i = 0; i < niks.length; i++) { niks[i].oninput = periksaNIK; periksaNIK.call(niks[i]); }
+        status(n + " isian dimuat.");
       });
     }).catch(fail);
+  }
+  function periksaNIK() {
+    var tag = this.getAttribute("data-tag"), el = document.querySelector('[data-cek="' + tag + '"]');
+    if (!el) return;
+    if (!this.value) { el.textContent = ""; this.className = ""; return; }
+    var pesan = AktaraValidasi.cekNIK(this.value), info = AktaraValidasi.infoNIK(this.value);
+    this.className = pesan ? "salah" : "";
+    el.className = pesan ? "peringatan" : "info";
+    el.textContent = pesan || ("Sah. Tanggal lahir menurut NIK: " + info.tanggal + " (" + (info.perempuan ? "perempuan" : "laki-laki") + ").");
   }
 
   /* 4. Isi data pihak ke seluruh content control dengan tag yang sama */
@@ -159,6 +174,57 @@
         return ctx.sync().then(function () { status(n + " isian diperbarui."); });
       });
     }).catch(fail);
+  }
+
+  /* Terbilangkan angka terpilih: "2026" -> "2026 (dua ribu dua puluh enam)" */
+  function terbilangkanPilihan() {
+    Word.run(function (ctx) {
+      var sel = ctx.document.getSelection(); sel.load("text");
+      return ctx.sync().then(function () {
+        var t = (sel.text || "").replace(/\s+$/, ""), angka = t.replace(/[^\d,]/g, "");
+        if (!/\d/.test(angka)) return status("Blok angka di dokumen terlebih dahulu.", true);
+        var huruf = angka.indexOf(",") >= 0 ? Terbilang.desimal(angka) : Terbilang.terbilang(parseInt(angka.replace(/,/g, ""), 10));
+        sel.insertText(t + " (" + huruf + ")", "Replace");
+        return ctx.sync().then(function () { status("Diterbilangkan: " + huruf); });
+      });
+    }).catch(fail);
+  }
+
+  /* Periksa akta sebelum cetak */
+  function periksaAkta() {
+    Word.run(function (ctx) {
+      var cc = ctx.document.contentControls; cc.load("items/tag,items/text");
+      var ps = ctx.document.body.paragraphs; ps.load("items/text,items/alignment");
+      return ctx.sync().then(function () {
+        var kosong = {}, tanpaGaris = 0, adaNomor = false;
+        cc.items.forEach(function (c) { if (!c.text || /^\{.*\}$/.test(c.text)) kosong[c.tag] = 1; });
+        ps.items.forEach(function (p) {
+          if (/^Nomor\s*:\s*\d+/.test(p.text)) adaNomor = true;
+          if (p.text && p.alignment !== "Centered" && p.alignment !== "Right" && !/\t$/.test(p.text)) tanpaGaris++;
+        });
+        var daftar = Object.keys(kosong), html = "<ul class='cek'>";
+        html += adaNomor ? "<li class='info'>Nomor akta tercantum.</li>" : "<li class='peringatan'>Nomor akta belum tercantum.</li>";
+        if (daftar.length) { html += "<li class='peringatan'>" + daftar.length + " isian masih kosong:<ul>";
+          daftar.forEach(function (t) { html += "<li>" + esc(label(t)) + "</li>"; }); html += "</ul></li>"; }
+        else html += "<li class='info'>Semua isian sudah terisi.</li>";
+        html += tanpaGaris ? "<li class='peringatan'>" + tanpaGaris + " paragraf belum diberi garis akta.</li>" : "<li class='info'>Semua paragraf sudah bergaris.</li>";
+        document.getElementById("hasilCek").innerHTML = html + "</ul>";
+        status(daftar.length || tanpaGaris || !adaNomor ? "Akta belum siap cetak." : "Akta siap dicetak.", !!(daftar.length || tanpaGaris || !adaNomor));
+      });
+    }).catch(fail);
+  }
+
+  /* Tampilkan repertorium bulan berjalan */
+  function lihatRepertorium() {
+    var d = new Date();
+    AktaraServer.daftarRepertorium(d.getFullYear(), d.getMonth() + 1, function (err, r) {
+      var w = document.getElementById("daftarRep");
+      if (err) { w.innerHTML = ""; return status("Gagal memuat repertorium: " + err.pesan, true); }
+      var h = "<table class='rep'><tr><th>No.</th><th>Tanggal</th><th>Sifat akta</th><th>Penghadap</th></tr>";
+      r.data.forEach(function (b) { h += "<tr><td>" + b.nomor + "</td><td>" + esc(b.tanggal) + "</td><td>" + esc(b.sifat_akta) + "</td><td>" + esc(b.penghadap) + "</td></tr>"; });
+      w.innerHTML = r.data.length ? h + "</table>" : "<p class='hint'>Belum ada akta tercatat bulan ini.</p>";
+      status(r.jumlah + " akta tercatat bulan ini.");
+    });
   }
 
   /* 5. Minuta -> Salinan */
@@ -236,13 +302,29 @@
       });
     };
     document.getElementById("btnMuat").onclick = muatIsian;
+    document.getElementById("btnPilihan").onclick = terbilangkanPilihan;
+    document.getElementById("btnCek").onclick = periksaAkta;
+    document.getElementById("btnLihatRep").onclick = lihatRepertorium;
+    document.getElementById("btnPersen").onclick = function () {
+      var v = val("inRupiah").replace(/[^\d,.]/g, ""); if (!v) return status("Isi angka persen dulu.", true);
+      sisip(Terbilang.persen(v));
+    };
+    var pilih = document.getElementById("inTemplate");
+    Object.keys(AktaraTemplates).forEach(function (k) {
+      var o = document.createElement("option"); o.value = k; o.text = AktaraTemplates[k].nama; pilih.appendChild(o);
+    });
     document.getElementById("btnLuas").onclick = function () {
       var n = parseInt(val("inRupiah").replace(/\D/g, ""), 10); if (isNaN(n)) return status("Isi angka luas dulu.", true);
       sisip(Terbilang.luas(n));
     };
     document.getElementById("btnIsi").onclick = function () {
       var d = {}; var els = document.querySelectorAll("[data-tag]");
-      for (var i = 0; i < els.length; i++) d[els[i].getAttribute("data-tag")] = els[i].value;
+      var salah = [];
+      for (var i = 0; i < els.length; i++) {
+        var tg = els[i].getAttribute("data-tag"); d[tg] = els[i].value;
+        if (/^NIK_/.test(tg) && els[i].value && AktaraValidasi.cekNIK(els[i].value)) salah.push(label(tg));
+      }
+      if (salah.length) status("Periksa kembali: " + salah.join(", ") + ". Data tetap diisikan.", true);
       isiField(d);
     };
     document.getElementById("btnSalinan").onclick = function () { jadikanSalinan(val("inKedudukan")); };
@@ -256,4 +338,4 @@
     AktaraServer.cekLisensi(function (e, st) { tampilLisensi(st); });
     status("Siap.");
   });
-})();
+})(this);

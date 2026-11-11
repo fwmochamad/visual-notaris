@@ -5,7 +5,7 @@
   "description": "Aktara - add-in Microsoft Word untuk kantor Notaris dan PPAT",
   "scripts": {
     "test": "node test/terbilang.test.js",
-    "lint:es5": "npx -y acorn@8 --ecma5 src/akta.js > /dev/null && npx -y acorn@8 --ecma5 src/terbilang.js > /dev/null && npx -y acorn@8 --ecma5 src/server.js > /dev/null && echo ES5 OK",
+    "lint:es5": "npx -y acorn@8 --ecma5 src/akta.js > /dev/null && npx -y acorn@8 --ecma5 src/terbilang.js > /dev/null && npx -y acorn@8 --ecma5 src/server.js > /dev/null && npx -y acorn@8 --ecma5 src/validasi.js > /dev/null && echo ES5 OK",
     "validate:manifest": "python3 -c \"import xml.dom.minidom as m; m.parse('manifest.xml'); print('manifest OK')\"",
     "start": "npx -y http-server src -p 3000 -S -C ~/.office-addin-dev-certs/localhost.crt -K ~/.office-addin-dev-certs/localhost.key"
   }

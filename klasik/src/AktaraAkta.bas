@@ -8,8 +8,9 @@ Private Const STYLE_GARIS As String = "Akta Garis"
 Public Sub AkOnLoad(ribbon As IRibbonUI)
 End Sub
 
-Public Sub AkKuasa(control As IRibbonControl): BuatTemplate "kuasa": End Sub
-Public Sub AkPPJB(control As IRibbonControl): BuatTemplate "jualbeli": End Sub
+Public Sub AkTemplate(control As IRibbonControl): BuatTemplate control.Tag: End Sub
+Public Sub AkPersen(control As IRibbonControl): SisipPersen: End Sub
+Public Sub AkCek(control As IRibbonControl): PeriksaAkta: End Sub
 Public Sub AkLuas(control As IRibbonControl): SisipLuas: End Sub
 Public Sub AkHalaman(control As IRibbonControl): AturHalamanAkta: End Sub
 Public Sub AkIsiData(control As IRibbonControl): IsiDataPihak: End Sub
@@ -67,6 +68,37 @@ Public Sub SisipAngka(ByVal rupiah As Boolean)
     If rupiah Then Sisip AktaraTerbilang.TerbilangRupiah(CDbl(s)) Else Sisip AktaraTerbilang.TerbilangAngka(CDbl(s))
 End Sub
 
+Public Sub SisipPersen()
+    Dim s As String
+    s = Trim$(InputBox("Persen (mis. 12,5):", "Aktara - Terbilang persen"))
+    If Len(s) = 0 Then Exit Sub
+    Sisip AktaraTerbilang.TerbilangPersen(s)
+End Sub
+
+' Periksa akta sebelum cetak: isian kosong, paragraf tanpa garis, nomor akta
+Public Sub PeriksaAkta()
+    Dim cc As ContentControl, p As Paragraph, kosong As String, nKosong As Long, tanpaGaris As Long, adaNomor As Boolean, t As String
+    Dim sudah As Object: Set sudah = CreateObject("Scripting.Dictionary")
+    For Each cc In ActiveDocument.ContentControls
+        If Len(AmbilIsi(cc)) = 0 And Not sudah.Exists(cc.Tag) Then
+            sudah.Add cc.Tag, 1: nKosong = nKosong + 1
+            kosong = kosong & vbCr & "   - " & cc.Title
+        End If
+    Next
+    For Each p In ActiveDocument.Paragraphs
+        t = p.Range.Text
+        If Left$(t, 5) = "Nomor" And InStr(t, ":") > 0 Then adaNomor = True
+        If Len(t) > 1 And p.Alignment <> 1 And p.Alignment <> 2 Then
+            If Right$(Left$(t, Len(t) - 1), 1) <> vbTab Then tanpaGaris = tanpaGaris + 1
+        End If
+    Next
+    Dim pesan As String
+    pesan = IIf(adaNomor, "[v] Nomor akta tercantum.", "[!] Nomor akta belum tercantum.") & vbCr
+    pesan = pesan & IIf(nKosong = 0, "[v] Semua isian sudah terisi.", "[!] " & nKosong & " isian masih kosong:" & kosong) & vbCr
+    pesan = pesan & IIf(tanpaGaris = 0, "[v] Semua paragraf sudah bergaris.", "[!] " & tanpaGaris & " paragraf belum diberi garis akta.")
+    MsgBox pesan, IIf(adaNomor And nKosong = 0 And tanpaGaris = 0, vbInformation, vbExclamation), "Aktara - Periksa Akta"
+End Sub
+
 Public Sub SisipLuas()
     Dim s As String
     s = HanyaAngka(InputBox("Luas (M2):", "Aktara - Terbilang luas"))
@@ -95,7 +127,11 @@ End Sub
 Public Sub TerbilangkanPilihan()
     Dim s As String: s = HanyaAngka(Selection.Text)
     If Len(s) = 0 Then MsgBox "Pilih angka di dokumen terlebih dahulu.", vbInformation, "Aktara": Exit Sub
-    Selection.Text = Trim$(Selection.Text) & " (" & AktaraTerbilang.Terbilang(CDbl(s)) & ")"
+    If InStr(Selection.Text, ",") > 0 Then
+        Selection.Text = Trim$(Selection.Text) & " (" & AktaraTerbilang.TerbilangDesimal(Trim$(Selection.Text)) & ")"
+    Else
+        Selection.Text = Trim$(Selection.Text) & " (" & AktaraTerbilang.Terbilang(CDbl(s)) & ")"
+    End If
     Selection.Collapse 0 ' wdCollapseEnd
 End Sub
 
@@ -221,7 +257,7 @@ Private Sub BungkusIsian(ByVal area As Range)
         tag = Mid$(r.Text, 2, Len(r.Text) - 2)
         Set cc = ActiveDocument.ContentControls.Add(1, r) ' wdContentControlText
         cc.Tag = tag
-        cc.Title = Replace(tag, "_", " ")
+        cc.Title = AktaraTemplate.LabelIsian(tag)
         r.SetRange cc.Range.End + 1, area.End
         If r.Start >= area.End Then Exit Do
         With r.Find
@@ -240,6 +276,12 @@ Public Sub IsiDataPihak()
     For Each cc In ActiveDocument.ContentControls
         If Len(cc.Tag) > 0 And Not sudah.Exists(cc.Tag) Then
             nilai = InputBox(cc.Title & ":" & vbCr & "(kosongkan untuk melewati)", "Aktara - Data para pihak", AmbilIsi(cc))
+            ' Nomor Induk Kependudukan (NIK) diperiksa; boleh dikoreksi atau tetap dipakai
+            Do While Left$(cc.Tag, 4) = "NIK_" And Len(nilai) > 0
+                If Len(AktaraTerbilang.CekNIK(nilai)) = 0 Then Exit Do
+                If MsgBox(AktaraTerbilang.CekNIK(nilai) & vbCr & vbCr & "Perbaiki sekarang?", vbYesNo + vbExclamation, "Aktara - Periksa NIK") = vbNo Then Exit Do
+                nilai = InputBox(cc.Title & ":", "Aktara - Data para pihak", nilai)
+            Loop
             sudah.Add cc.Tag, nilai
         End If
     Next

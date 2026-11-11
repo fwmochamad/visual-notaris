@@ -16,3 +16,17 @@ assert.strictEqual(T.jam(12, 30), "12.30 WIB (dua belas lebih tiga puluh menit W
 assert.strictEqual(T.luas(72), "72 M\u00b2 (tujuh puluh dua Meter persegi)");
 assert.strictEqual(T.nomorAkta(22), "22.-");
 console.log("Semua " + (cases.length + 7) + " tes lulus");
+
+// Desimal, persen, validasi NIK
+assert.strictEqual(T.persen("12,5"), "12,5% (dua belas koma lima persen)");
+assert.strictEqual(T.persen("10"), "10% (sepuluh persen)");
+assert.strictEqual(T.desimal("0,05"), "nol koma nol lima");
+var V = require("../src/validasi.js");
+assert.strictEqual(V.cekNIK("3273010101800001"), "");
+assert.strictEqual(V.cekNIK("3273014505850002"), "");
+assert.match(V.cekNIK("12345"), /16 digit/);
+assert.match(V.cekNIK("0073010101800001"), /kode provinsi/);
+assert.match(V.cekNIK("3273013201800001"), /tanggal lahir/);
+assert.match(V.cekNIK("3273010113800001"), /bulan lahir/);
+assert.deepStrictEqual(V.infoNIK("3273014505850002"), { perempuan: true, tanggal: "05-05-85", sapaan: "Nyonya/Nona" });
+console.log("Tes desimal, persen, dan NIK lulus");

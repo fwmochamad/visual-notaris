@@ -32,6 +32,12 @@ Public Sub AktaraJalankanTes()
     Cek AktaraTerbilang.TerbilangJam(12, 30), "12.30 WIB (dua belas lebih tiga puluh menit Waktu Indonesia Barat)", "jam 2"
     Cek AktaraTerbilang.TerbilangLuas(72), "72 M" & ChrW(178) & " (tujuh puluh dua Meter persegi)", "luas"
     Cek AktaraTerbilang.FormatNomorAkta(22), "22.-", "nomor"
+    Cek AktaraTerbilang.TerbilangPersen("12,5"), "12,5% (dua belas koma lima persen)", "persen"
+    Cek AktaraTerbilang.TerbilangDesimal("0,05"), "nol koma nol lima", "desimal"
+    Cek AktaraTerbilang.CekNIK("3273010101800001"), "", "NIK sah"
+    Cek AktaraTerbilang.CekNIK("3273014505850002"), "", "NIK sah perempuan"
+    Cek CStr(InStr(AktaraTerbilang.CekNIK("12345"), "16 digit") > 0), "True", "NIK pendek"
+    Cek CStr(InStr(AktaraTerbilang.CekNIK("3273010113800001"), "bulan lahir") > 0), "True", "NIK bulan"
     Cek AktaraServer.JsonAmbil("{""token"":""a.b"",""nomor"":7,""kantor"":""Kantor \""X\""""}", "nomor"), "7", "json angka"
     Cek AktaraServer.JsonAmbil("{""token"":""a.b"",""nomor"":7,""kantor"":""Kantor \""X\""""}", "kantor"), "Kantor ""X""", "json teks"
     MsgBox "Tes Aktara: " & lulus & " lulus, " & gagal & " gagal." & IIf(gagal > 0, vbCr & "Lihat Immediate Window (Ctrl+G) di editor VBA.", ""), _

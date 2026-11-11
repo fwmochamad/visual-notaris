@@ -98,3 +98,41 @@ End Function
 Public Function TerbilangAngka(ByVal n As Double) As String
     TerbilangAngka = Format$(n, "0") & " (" & Terbilang(n) & ")"
 End Function
+
+' Desimal: "2,5" -> "dua koma lima" (digit di belakang koma dibaca satu per satu)
+Public Function TerbilangDesimal(ByVal teks As String) As String
+    Dim p() As String, h As String, i As Long, c As String
+    p = Split(Replace(teks, ".", ","), ",")
+    h = Terbilang(CDbl(IIf(Len(p(0)) = 0, "0", p(0))))
+    If UBound(p) >= 1 Then
+        If Len(p(1)) > 0 Then
+            h = h & " koma"
+            For i = 1 To Len(p(1))
+                c = Mid$(p(1), i, 1)
+                If c = "0" Then h = h & " nol" Else h = h & " " & Terbilang(CDbl(c))
+            Next
+        End If
+    End If
+    TerbilangDesimal = h
+End Function
+
+' "12,5% (dua belas koma lima persen)"
+Public Function TerbilangPersen(ByVal teks As String) As String
+    TerbilangPersen = Replace(teks, ".", ",") & "% (" & TerbilangDesimal(teks) & " persen)"
+End Function
+
+' Memeriksa Nomor Induk Kependudukan (NIK). Mengembalikan teks kosong bila sah, atau pesan masalahnya.
+Public Function CekNIK(ByVal nik As String) As String
+    Dim n As String, i As Long, prov As Long, tgl As Long, bln As Long
+    n = Replace(nik, " ", "")
+    If Len(n) <> 16 Then CekNIK = "Nomor Induk Kependudukan (NIK) harus 16 digit angka (sekarang " & Len(n) & " karakter).": Exit Function
+    For i = 1 To 16
+        If Not Mid$(n, i, 1) Like "#" Then CekNIK = "Nomor Induk Kependudukan (NIK) hanya boleh berisi angka.": Exit Function
+    Next
+    prov = CLng(Left$(n, 2)): tgl = CLng(Mid$(n, 7, 2)): bln = CLng(Mid$(n, 9, 2))
+    If prov < 11 Or prov > 96 Then CekNIK = "Dua digit pertama NIK (kode provinsi) tidak dikenal: " & Left$(n, 2) & ".": Exit Function
+    If tgl > 40 Then tgl = tgl - 40
+    If tgl < 1 Or tgl > 31 Then CekNIK = "Digit ke-7 dan ke-8 NIK (tanggal lahir) tidak valid: " & Mid$(n, 7, 2) & ".": Exit Function
+    If bln < 1 Or bln > 12 Then CekNIK = "Digit ke-9 dan ke-10 NIK (bulan lahir) tidak valid: " & Mid$(n, 9, 2) & ".": Exit Function
+    CekNIK = ""
+End Function

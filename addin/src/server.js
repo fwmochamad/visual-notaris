@@ -77,10 +77,14 @@
     }, cb);
   }
 
+  function daftarRepertorium(tahun, bulan, cb) {
+    panggil("GET", "/api/repertorium?tahun=" + tahun + "&bulan=" + bulan, null, cb);
+  }
+
   function aturServer(url) { set(K.url, url ? url.replace(/\/+$/, "") : null); }
   function urlServer() { return get(K.url) || BAWAAN; }
   function keluar() { set(K.token, null); set(K.kantor, null); }
 
   root.AktaraServer = { aktivasi: aktivasi, statusLisensi: statusLisensi, cekLisensi: cekLisensi, nomorAkta: nomorAkta,
-    catatRepertorium: catatRepertorium, aturServer: aturServer, urlServer: urlServer, keluar: keluar, deviceId: deviceId };
+    catatRepertorium: catatRepertorium, daftarRepertorium: daftarRepertorium, aturServer: aturServer, urlServer: urlServer, keluar: keluar, deviceId: deviceId };
 })(this);
