@@ -169,9 +169,22 @@
         var c = ctx.document.contentControls.getByTag(tag); c.load("items"); list.push([c, data[tag]]);
       });
       return ctx.sync().then(function () {
-        var n = 0;
-        list.forEach(function (x) { x[0].items.forEach(function (cc) { cc.insertText(x[1], "Replace"); n++; }); });
-        return ctx.sync().then(function () { status(n + " isian diperbarui."); });
+        // Diisi satu per satu (sync per content control): Word Online kadang menolak banyak Replace
+        // sekaligus (GeneralException). Bila Replace gagal, isi dikosongkan lalu disisipkan ulang.
+        var tugas = [], n = 0, gagal = 0;
+        list.forEach(function (x) { x[0].items.forEach(function (cc) { tugas.push([cc, x[1]]); }); });
+        function langkah(i) {
+          if (i >= tugas.length) return null;
+          var cc = tugas[i][0], nilai = tugas[i][1];
+          cc.insertText(nilai, "Replace");
+          return ctx.sync().then(function () { n++; }, function () {
+            cc.clear(); cc.insertText(nilai, "Start");
+            return ctx.sync().then(function () { n++; }, function () { gagal++; });
+          }).then(function () { return langkah(i + 1); });
+        }
+        return (window.Promise || OfficeExtension.Promise).resolve(langkah(0)).then(function () {
+          status(n + " isian diperbarui." + (gagal ? " " + gagal + " gagal diisi." : ""), gagal > 0);
+        });
       });
     }).catch(fail);
   }
