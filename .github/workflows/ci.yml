@@ -1,0 +1,21 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  addin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: addin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Tes unit
+        run: npm test
+      - name: Cek kompatibilitas ES5 (Word 2016 / IE11)
+        run: npm run lint:es5
+      - name: Validasi manifest
+        run: npm run validate:manifest

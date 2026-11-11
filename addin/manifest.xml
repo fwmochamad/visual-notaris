@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+  <Id>6f1c2a0e-7b4d-4c1e-9a52-3d8e5f0b7a11</Id>
+  <Version>0.1.0.0</Version>
+  <ProviderName>Aktara</ProviderName>
+  <DefaultLocale>id-ID</DefaultLocale>
+  <DisplayName DefaultValue="Aktara"/>
+  <Description DefaultValue="Alat bantu pembuatan akta notaris dan PPAT di Microsoft Word."/>
+  <IconUrl DefaultValue="https://localhost:3000/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://localhost:3000/icon-80.png"/>
+  <SupportUrl DefaultValue="https://localhost:3000/"/>
+  <Hosts><Host Name="Document"/></Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.1"><Set Name="WordApi" MinVersion="1.1"/></Sets>
+  </Requirements>
+  <DefaultSettings><SourceLocation DefaultValue="https://localhost:3000/taskpane.html"/></DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Document">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="AK.Group">
+                <Label resid="AK.Label"/>
+                <Icon><bt:Image size="16" resid="Icon16"/><bt:Image size="32" resid="Icon32"/><bt:Image size="80" resid="Icon80"/></Icon>
+                <Control xsi:type="Button" id="AK.Open">
+                  <Label resid="AK.Label"/>
+                  <Supertip><Title resid="AK.Label"/><Description resid="AK.Desc"/></Supertip>
+                  <Icon><bt:Image size="16" resid="Icon16"/><bt:Image size="32" resid="Icon32"/><bt:Image size="80" resid="Icon80"/></Icon>
+                  <Action xsi:type="ShowTaskpane"><TaskpaneId>AKPane</TaskpaneId><SourceLocation resid="AK.Url"/></Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon16" DefaultValue="https://localhost:3000/icon-16.png"/>
+        <bt:Image id="Icon32" DefaultValue="https://localhost:3000/icon-32.png"/>
+        <bt:Image id="Icon80" DefaultValue="https://localhost:3000/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls><bt:Url id="AK.Url" DefaultValue="https://localhost:3000/taskpane.html"/></bt:Urls>
+      <bt:ShortStrings><bt:String id="AK.Label" DefaultValue="Aktara"/></bt:ShortStrings>
+      <bt:LongStrings><bt:String id="AK.Desc" DefaultValue="Buka panel akta: template, terbilang, data pihak, garis akta."/></bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

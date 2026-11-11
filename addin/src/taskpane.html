@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<title>Aktara</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<script src="terbilang.js"></script>
+<script src="akta.js"></script>
+<style>
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; margin: 0; color: #222; }
+  header { background: #1f3a5f; color: #fff; padding: 10px 12px; font-weight: 600; }
+  nav { display: flex; border-bottom: 1px solid #ccd; }
+  .tab { flex: 1; padding: 8px 0; text-align: center; cursor: pointer; color: #555; }
+  .tab.on { color: #1f3a5f; border-bottom: 3px solid #1f3a5f; font-weight: 600; }
+  section { padding: 12px; display: none; }
+  label { display: block; margin: 8px 0 3px; color: #444; }
+  input, select { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid #bbc; border-radius: 3px; font-size: 13px; }
+  button { width: 100%; margin-top: 8px; padding: 8px; border: 0; border-radius: 3px; background: #1f3a5f; color: #fff; font-size: 13px; cursor: pointer; }
+  button.alt { background: #e6eaf0; color: #1f3a5f; }
+  .row { display: flex; gap: 6px; } .row > * { flex: 1; }
+  .hint { color: #777; font-size: 12px; margin-top: 4px; }
+  .status { margin: 0; padding: 8px 12px; font-size: 12px; border-top: 1px solid #dde; }
+  .ok { background: #eef6ee; color: #235c23; } .err { background: #fbecec; color: #8a1f1f; }
+</style>
+</head>
+<body>
+<header>Aktara</header>
+<nav>
+  <div class="tab on" data-p="pAkta">Akta</div>
+  <div class="tab" data-p="pTerbilang">Terbilang</div>
+  <div class="tab" data-p="pPihak">Pihak</div>
+  <div class="tab" data-p="pGaris">Garis</div>
+</nav>
+
+<section id="pAkta" style="display:block">
+  <label>Jenis akta</label>
+  <select id="inTemplate"><option value="kuasa">Kuasa</option><option value="jualbeli">Pengikatan Jual Beli</option></select>
+  <button id="btnTemplate">Buat akta baru</button>
+  <div class="hint">Nomor akta otomatis bertambah setiap akta baru.</div>
+  <label>Kedudukan notaris</label>
+  <input id="inKedudukan" placeholder="mis. Kota Bandung">
+  <button id="btnSalinan" class="alt">Jadikan SALINAN</button>
+</section>
+
+<section id="pTerbilang">
+  <label>Tanggal</label><input id="inTanggal" type="date">
+  <button id="btnTanggal">Sisipkan tanggal</button>
+  <label>Jam</label>
+  <div class="row"><input id="inJam" type="time"><select id="inZona"><option>WIB</option><option>WITA</option><option>WIT</option></select></div>
+  <button id="btnJam">Sisipkan jam</button>
+  <label>Angka / nominal</label><input id="inRupiah" placeholder="1500000">
+  <div class="row"><button id="btnRupiah">Rupiah</button><button id="btnAngka" class="alt">Angka biasa</button></div>
+</section>
+
+<section id="pPihak">
+  <label>Nama notaris</label><input data-tag="NOTARIS">
+  <label>Kedudukan</label><input data-tag="KEDUDUKAN">
+  <label>Hari / tanggal / jam akta</label>
+  <input data-tag="HARI" placeholder="Rabu"><input data-tag="TANGGAL" placeholder="sebelas November dua ribu dua puluh enam" style="margin-top:4px"><input data-tag="JAM" placeholder="10.00 WIB" style="margin-top:4px">
+  <label>Pihak 1: nama, TTL, alamat, NIK</label>
+  <input data-tag="NAMA_PIHAK1"><input data-tag="TTL_PIHAK1" style="margin-top:4px"><input data-tag="ALAMAT_PIHAK1" style="margin-top:4px"><input data-tag="NIK_PIHAK1" style="margin-top:4px">
+  <label>Pihak 2: nama, TTL, alamat, NIK</label>
+  <input data-tag="NAMA_PIHAK2"><input data-tag="TTL_PIHAK2" style="margin-top:4px"><input data-tag="ALAMAT_PIHAK2" style="margin-top:4px"><input data-tag="NIK_PIHAK2" style="margin-top:4px">
+  <label>Objek / harga / isi kuasa</label>
+  <input data-tag="OBJEK"><input data-tag="HARGA" style="margin-top:4px"><input data-tag="OBJEK_KUASA" style="margin-top:4px">
+  <button id="btnIsi">Isi ke dokumen</button>
+  <div class="hint">Data yang sama terisi di semua tempat dalam akta.</div>
+</section>
+
+<section id="pGaris">
+  <div class="hint">Pilih paragraf (atau Ctrl+A untuk seluruh akta), lalu klik. Garis strip mengisi sisa baris dan menyesuaikan sendiri saat teks diedit.</div>
+  <button id="btnGaris">Pasang garis akta</button>
+  <button id="btnHapusGaris" class="alt">Hapus garis</button>
+</section>
+
+<p id="status" class="status ok">Memuat…</p>
+</body>
+</html>
