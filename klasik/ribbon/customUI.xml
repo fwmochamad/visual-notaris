@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="AkOnLoad">
+  <ribbon>
+    <tabs>
+      <tab id="tabAktara" label="Aktara">
+        <group id="grpAkta" label="Akta">
+          <button id="btnKuasa" label="Akta Kuasa" size="large" imageMso="FileNew" onAction="AkKuasa" screentip="Buat akta Kuasa dari template, nomor akta otomatis"/>
+          <button id="btnPPJB" label="Akta PPJB" size="large" imageMso="FileNew" onAction="AkPPJB" screentip="Buat akta Pengikatan Jual Beli"/>
+          <button id="btnIsi" label="Isi Data Pihak" size="large" imageMso="ContactCardCreate" onAction="AkIsiData" screentip="Isi data sekali, terisi di semua tempat"/>
+          <button id="btnSalinan" label="Jadikan Salinan" size="large" imageMso="Copy" onAction="AkSalinan" screentip="Buat SALINAN di dokumen baru; minuta tidak diubah"/>
+          <button id="btnRep" label="Catat Repertorium" size="large" imageMso="TableInsert" onAction="AkRepertorium"/>
+        </group>
+        <group id="grpTerbilang" label="Terbilang">
+          <button id="btnTgl" label="Tanggal" imageMso="DateAndTimeInsert" onAction="AkTanggal"/>
+          <button id="btnJam" label="Jam" imageMso="DateAndTimeInsert" onAction="AkJam"/>
+          <button id="btnRp" label="Rupiah" imageMso="AccountingFormat" onAction="AkRupiah"/>
+          <button id="btnAngka" label="Angka" imageMso="Numbering" onAction="AkAngka"/>
+          <button id="btnPilihan" label="Terbilangkan Pilihan" imageMso="ReplaceDialog" onAction="AkTerbilangPilihan" screentip="Pilih angka di dokumen lalu klik"/>
+        </group>
+        <group id="grpGaris" label="Garis Akta">
+          <button id="btnGaris" label="Pasang Garis" size="large" imageMso="BorderBottom" onAction="AkGaris" screentip="Pilih paragraf (Ctrl+A untuk semua) lalu klik"/>
+          <button id="btnHapusGaris" label="Hapus Garis" size="large" imageMso="BorderNone" onAction="AkHapusGaris"/>
+        </group>
+        <group id="grpLisensi" label="Aktara">
+          <button id="btnLisensi" label="Lisensi" size="large" imageMso="AdpPrimaryKey" onAction="AkLisensi"/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>

@@ -7,7 +7,8 @@ tanpa aplikasi baru.
 ## Struktur
 | Folder | Isi |
 |---|---|
-| `addin/` | Add-in Office.js (WordApi 1.1, ES5) — Word 2016, 2019, 2021, 2024, 365, Mac, Web |
+| `addin/` | **Edisi Modern** — add-in Office.js (WordApi 1.1, ES5): Word 2016, 2019, 2021, 2024, 365, Mac, Web |
+| `klasik/` | **Edisi Klasik** — template global VBA (.dotm): Word 2007, 2010, 2013 (dan 2016+ Windows) |
 | `server/` | API lisensi, nomor akta terpusat, repertorium (Node.js, tanpa dependensi) |
 | `docs/` | Spesifikasi produk |
 
