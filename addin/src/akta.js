@@ -100,9 +100,20 @@
         if (x.charAt(0) === "^") { baris.push(x.slice(1)); tengah.push("tengah"); }
         else { baris.push(x); tengah.push(""); }
       });
+      // Setiap baris disusun per potongan: teks biasa disisipkan apa adanya, {ISIAN} langsung dijadikan
+      // content control. Tanpa pencarian (search) - lebih andal di Word Online untuk paragraf panjang.
       var paras = [], last = sel;
       baris.forEach(function (b, i) {
-        last = i === 0 ? sel.insertParagraph(b, "Before") : last.insertParagraph(b, "After");
+        var potong = b.split(/(\{[A-Z0-9_]+\})/);
+        last = i === 0 ? sel.insertParagraph(potong[0], "Before") : last.insertParagraph(potong[0], "After");
+        for (var k = 1; k < potong.length; k++) {
+          if (!potong[k]) continue;
+          var r = last.insertText(potong[k], "End");
+          if (k % 2 === 1) {
+            var tag = potong[k].slice(1, -1);
+            var cc = r.insertContentControl(); cc.tag = tag; cc.title = tag.replace(/_/g, " ");
+          }
+        }
         paras.push(last);
       });
       return ctx.sync().then(function () {
@@ -112,24 +123,8 @@
           p.alignment = tengah[i] ? "Centered" : "Justified";
           if (tengah[i] === "judul") p.font.bold = true;
         });
-        return ctx.sync().then(function () {
-          // Cari {ISIAN} per paragraf akta yang baru dibuat, lalu bungkus satu per satu
-          var hasil = [];
-          paras.forEach(function (p) {
-            var s = p.search("\\{*\\}", { matchWildcards: true }); s.load("items/text"); hasil.push(s);
-          });
-          return ctx.sync().then(function () {
-            hasil.forEach(function (s) {
-              s.items.forEach(function (r) {
-                if (!/^\{[A-Z0-9_]+\}$/.test(r.text)) return;
-                var tag = r.text.replace(/[{}]/g, "");
-                var cc = r.insertContentControl(); cc.tag = tag; cc.title = tag.replace(/_/g, " ");
-              });
-            });
-            return ctx.sync();
-          });
-        }).then(function () { status("Akta " + t.sifat + " nomor " + nomorAngka + " dibuat. Buka tab Pihak > Muat isian."); });
-      });
+        return ctx.sync();
+      }).then(function () { status("Akta " + t.sifat + " nomor " + nomorAngka + " dibuat. Buka tab Pihak > Muat isian."); });
     }).catch(fail);
   }
 
