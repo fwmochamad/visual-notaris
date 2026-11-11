@@ -23,7 +23,11 @@
     var el = document.getElementById("status");
     el.textContent = msg; el.className = err ? "status err" : "status ok";
   }
-  function fail(e) { status("Gagal: " + (e && e.message ? e.message : e), true); }
+  function fail(e) {
+    var info = "";
+    try { if (e && e.debugInfo) info = " [" + (e.debugInfo.code || "") + " @ " + (e.debugInfo.errorLocation || "") + "]"; } catch (x) {}
+    status("Gagal: " + (e && e.message ? e.message : e) + info, true);
+  }
 
   function pastikanStyle(ctx) {
     // Menyisipkan paket berisi definisi style; Word menambahkan style bila belum ada. Paragraf kosong sisaannya dihapus.
@@ -108,17 +112,24 @@
           p.alignment = tengah[i] ? "Centered" : "Justified";
           if (tengah[i] === "judul") p.font.bold = true;
         });
-        var semua = [];
-        paras.forEach(function (p) { var s = p.search("\\{[A-Z0-9_]@\\}", { matchWildcards: true }); s.load("items/text"); semua.push(s); });
         return ctx.sync().then(function () {
-          semua.forEach(function (s) {
-            s.items.forEach(function (r) {
-              var tag = r.text.replace(/[{}]/g, "");
-              var cc = r.insertContentControl(); cc.tag = tag; cc.title = tag.replace(/_/g, " "); cc.appearance = "Tags";
-            });
+          // Cari {ISIAN} per paragraf akta yang baru dibuat, lalu bungkus satu per satu
+          var hasil = [];
+          paras.forEach(function (p) {
+            if (p.text && p.text.indexOf("{") < 0) return;
+            var s = p.search("\\{*\\}", { matchWildcards: true }); s.load("items/text"); hasil.push(s);
           });
-          return ctx.sync().then(function () { status("Akta " + t.sifat + " nomor " + nomorAngka + " dibuat. Buka tab Pihak > Muat isian."); });
-        });
+          return ctx.sync().then(function () {
+            hasil.forEach(function (s) {
+              s.items.forEach(function (r) {
+                if (!/^\{[A-Z0-9_]+\}$/.test(r.text)) return;
+                var tag = r.text.replace(/[{}]/g, "");
+                var cc = r.insertContentControl(); cc.tag = tag; cc.title = tag.replace(/_/g, " ");
+              });
+            });
+            return ctx.sync();
+          });
+        }).then(function () { status("Akta " + t.sifat + " nomor " + nomorAngka + " dibuat. Buka tab Pihak > Muat isian."); });
       });
     }).catch(fail);
   }
