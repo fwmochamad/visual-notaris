@@ -1,0 +1,22 @@
+# Blueprint Render: Aktara API (paket gratis, region Singapura).
+# Database: Neon Postgres - isi DATABASE_URL di dashboard Render (tidak disimpan di repo).
+services:
+  - type: web
+    name: aktara-api
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: server
+    buildCommand: npm install --omit=dev
+    startCommand: node --no-warnings src/index.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: AKTARA_SECRET
+        generateValue: true
+      - key: AKTARA_ADMIN_KEY
+        generateValue: true

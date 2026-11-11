@@ -4,7 +4,8 @@
 (function (root) {
   "use strict";
   var K = { url: "ak.server", token: "ak.token", dicek: "ak.lisensiDicek", kantor: "ak.kantor", device: "ak.device", batas: "ak.batasOffline" };
-  var BAWAAN = (location.hostname === "localhost") ? "https://localhost:8080" : "https://api.aktara.id";
+  // Alamat API: config.js (diisi saat deploy) > server dev lokal > produksi
+  var BAWAAN = root.AKTARA_API || ((location.hostname === "localhost") ? "https://localhost:8080" : "https://aktara-api.onrender.com");
 
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }

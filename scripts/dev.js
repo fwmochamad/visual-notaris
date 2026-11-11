@@ -30,14 +30,16 @@ https.createServer(tls, (req, res) => {
 }).listen(3000, () => console.log("Add-in   : https://localhost:3000/taskpane.html"));
 
 // 2. API dengan lisensi uji
-const db = buka(path.join(__dirname, "..", "server", "dev.db"));
-const KODE = "AKT-DEV0-0000-0000-0001";
-if (!db.prepare("SELECT 1 FROM kantor WHERE kode_lisensi = ?").get(KODE)) {
-  db.prepare("INSERT INTO kantor (nama, kode_lisensi, paket, maks_perangkat, berlaku_sampai) VALUES (?,?,?,?,?)")
-    .run("Kantor Notaris Uji Coba", KODE, "kantor", 5, "2099-12-31");
-}
-const app = buatApp({ db, rahasia: "rahasia-dev", kunciAdmin: "admin-dev" });
-https.createServer(tls, app.listeners("request")[0]).listen(8080, () => {
-  console.log("API      : https://localhost:8080/api/health");
-  console.log("Kode lisensi uji: " + KODE);
-});
+(async () => {
+  const db = await buka({ path: path.join(__dirname, "..", "server", "dev.db") });
+  const KODE = "AKT-DEV0-0000-0000-0001";
+  if (!(await db.get("SELECT 1 AS ada FROM kantor WHERE kode_lisensi = $1", [KODE]))) {
+    await db.run("INSERT INTO kantor (nama, kode_lisensi, paket, maks_perangkat, berlaku_sampai) VALUES ($1,$2,$3,$4,$5)",
+      ["Kantor Notaris Uji Coba", KODE, "kantor", 5, "2099-12-31"]);
+  }
+  const app = buatApp({ db, rahasia: "rahasia-dev", kunciAdmin: "admin-dev" });
+  https.createServer(tls, app.listeners("request")[0]).listen(8080, () => {
+    console.log("API      : https://localhost:8080/api/health");
+    console.log("Kode lisensi uji: " + KODE);
+  });
+})();

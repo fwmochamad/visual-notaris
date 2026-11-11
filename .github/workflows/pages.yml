@@ -1,0 +1,37 @@
+# Menerbitkan file add-in Edisi Modern ke GitHub Pages (HTTPS publik).
+name: Pages
+on:
+  push:
+    branches: [main]
+    paths: ["addin/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Siapkan situs
+        env:
+          AKTARA_API: ${{ vars.AKTARA_API || 'https://aktara-api.onrender.com' }}
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: |
+          mkdir -p _site
+          cp -r addin/src/* _site/
+          echo "window.AKTARA_API = \"$AKTARA_API\";" > _site/config.js
+          sed "s#https://localhost:3000#$PAGES_URL#g" addin/manifest.xml > _site/manifest.xml
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

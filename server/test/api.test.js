@@ -8,11 +8,13 @@ const ADMIN = "kunci-admin-tes";
 let server, base;
 
 test.before(async () => {
-  server = buatApp({ db: buka(":memory:"), rahasia: "rahasia-tes", kunciAdmin: ADMIN });
+  // TEST_DATABASE_URL diisi -> tes dijalankan terhadap Postgres sungguhan (dipakai di CI)
+  const db = await buka(process.env.TEST_DATABASE_URL ? { url: process.env.TEST_DATABASE_URL } : { path: ":memory:" });
+  server = buatApp({ db, rahasia: "rahasia-tes", kunciAdmin: ADMIN });
   await new Promise((r) => server.listen(0, r));
   base = "http://127.0.0.1:" + server.address().port;
 });
-test.after(() => server.close());
+test.after(async () => { server.close(); });
 
 async function panggil(method, path, body, headers) {
   const r = await fetch(base + path, {
