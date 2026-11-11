@@ -184,9 +184,10 @@
         function langkah(i) {
           if (i >= tugas.length) return null;
           var cc = tugas[i][0], nilai = tugas[i][1];
-          cc.insertText(nilai, "Replace");
+          // Teks pengganti mengikuti format akta (Word Online memakai font bawaan saat Replace)
+          cc.insertText(nilai, "Replace"); cc.font.name = "Courier New"; cc.font.size = 12;
           return ctx.sync().then(function () { n++; }, function () {
-            cc.clear(); cc.insertText(nilai, "Start");
+            cc.clear(); cc.insertText(nilai, "Start"); cc.font.name = "Courier New"; cc.font.size = 12;
             return ctx.sync().then(function () { n++; }, function () { gagal++; });
           }).then(function () { return langkah(i + 1); });
         }
