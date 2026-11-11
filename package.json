@@ -7,6 +7,11 @@
     "dev": "node --no-warnings scripts/dev.js",
     "sideload": "npx -y office-addin-debugging start addin/manifest.xml desktop --no-debug --no-live-reload",
     "stop": "npx -y office-addin-debugging stop addin/manifest.xml",
-    "test": "cd addin && npm test && cd ../server && npm test"
+    "test": "cd addin && npm test && cd ../server && npm test",
+    "start": "node --no-warnings server/src/index.js",
+    "postinstall": "cd server && npm install --omit=dev"
+  },
+  "engines": {
+    "node": ">=22.5"
   }
 }
