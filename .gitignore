@@ -3,3 +3,4 @@ node_modules/
 .DS_Store
 .env
 server/dev.db
+klasik/build/
