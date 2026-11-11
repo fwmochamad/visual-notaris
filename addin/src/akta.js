@@ -116,7 +116,6 @@
           // Cari {ISIAN} per paragraf akta yang baru dibuat, lalu bungkus satu per satu
           var hasil = [];
           paras.forEach(function (p) {
-            if (p.text && p.text.indexOf("{") < 0) return;
             var s = p.search("\\{*\\}", { matchWildcards: true }); s.load("items/text"); hasil.push(s);
           });
           return ctx.sync().then(function () {
