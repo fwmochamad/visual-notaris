@@ -101,7 +101,9 @@ Public Sub PasangGaris()
     PastikanStyle
     Dim p As Paragraph, n As Long, r As Range, rata As Long, tebal As Long
     For Each p In Selection.Paragraphs
-        ' Pertahankan perataan & huruf tebal (mis. judul akta tetap di tengah)
+        ' Lewati judul (rata tengah/kanan) dan paragraf kosong
+        If p.Alignment = 1 Or p.Alignment = 2 Or Len(p.Range.Text) <= 1 Then GoTo Berikut
+        ' Pertahankan perataan & huruf tebal
         rata = p.Alignment: tebal = p.Range.Font.Bold
         p.Style = ActiveDocument.Styles(STYLE_GARIS)
         p.Alignment = rata
@@ -109,6 +111,7 @@ Public Sub PasangGaris()
         Set r = p.Range
         r.MoveEnd 1, -1 ' tanpa tanda paragraf
         If Right$(r.Text, 1) <> vbTab Then r.InsertAfter vbTab: n = n + 1
+Berikut:
     Next
     StatusBar = "Aktara: garis dipasang pada " & n & " paragraf."
 End Sub

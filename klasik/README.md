@@ -10,6 +10,12 @@ Memakai server API yang sama dengan Edisi Modern (lisensi, nomor akta, repertori
 | Garis Akta | Pasang Garis, Hapus Garis |
 | Aktara | Lisensi (aktivasi, alamat server) |
 
+## Status uji (Word 2010, 11-11-2026)
+Semua tombol lulus diuji langsung di Word 2010: aktivasi lisensi, Akta Kuasa & PPJB (nomor dari server),
+Isi Data Pihak, terbilang, garis akta, Catat Repertorium, Jadikan Salinan. Tes otomatis: 24 lulus.
+
+`dist/Aktara.dotm` di repo sudah berisi kode VBA — siap dipasang tanpa langkah impor.
+
 ## Struktur
 - `src/*.bas` — kode VBA (sumber utama, dikelola di git)
 - `ribbon/customUI.xml` — definisi tab ribbon
