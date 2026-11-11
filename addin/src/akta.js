@@ -15,7 +15,7 @@
     '<pkg:part pkg:name="/word/styles.xml" pkg:contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"><pkg:xmlData>' +
     '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
     '<w:style w:type="paragraph" w:customStyle="1" w:styleId="AktaGaris"><w:name w:val="' + STYLE + '"/><w:basedOn w:val="Normal"/><w:qFormat/>' +
-    '<w:pPr><w:tabs><w:tab w:val="right" w:leader="hyphen" w:pos="9638"/></w:tabs><w:spacing w:after="0" w:line="360" w:lineRule="auto"/><w:jc w:val="left"/></w:pPr>' +
+    '<w:pPr><w:tabs><w:tab w:val="right" w:leader="hyphen" w:pos="9638"/></w:tabs><w:spacing w:after="0" w:line="500" w:lineRule="exact"/><w:jc w:val="both"/></w:pPr>' +
     '<w:rPr><w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/><w:sz w:val="24"/></w:rPr></w:style>' +
     '</w:styles></pkg:xmlData></pkg:part></pkg:package>';
 
@@ -39,15 +39,17 @@
     });
   }
 
-  /* 1. Garis akta: pasang tab-leader di akhir setiap paragraf terpilih */
+  /* 1. Garis akta: tab-leader strip di akhir paragraf terpilih (judul rata tengah & paragraf kosong dilewati) */
   function pasangGaris() {
     Word.run(function (ctx) {
       return pastikanStyle(ctx).then(function () {
-        var ps = ctx.document.getSelection().paragraphs; ps.load("items/text");
+        var ps = ctx.document.getSelection().paragraphs; ps.load("items/text,items/alignment");
         return ctx.sync().then(function () {
           var n = 0;
           ps.items.forEach(function (p) {
-            p.style = STYLE;
+            if (p.alignment === "Centered" || p.alignment === "Right" || !p.text) return;
+            var rata = p.alignment;
+            p.style = STYLE; p.alignment = rata;
             if (!/\t$/.test(p.text)) { p.insertText("\t", "End"); n++; }
           });
           return ctx.sync().then(function () { status("Garis dipasang pada " + n + " paragraf."); });
@@ -80,39 +82,32 @@
     }).catch(fail);
   }
 
-  /* 3. Template akta dengan isian (content control ber-tag) */
-  var TEMPLATE = {
-    kuasa: { judul: "KUASA", isi: ["Berhadapan dengan saya, {NOTARIS}, Notaris di {KEDUDUKAN}, dengan dihadiri oleh saksi-saksi yang saya, Notaris, kenal dan akan disebut pada bagian akhir akta ini:",
-      "Tuan/Nyonya {NAMA_PIHAK1}, lahir di {TTL_PIHAK1}, Warga Negara Indonesia, bertempat tinggal di {ALAMAT_PIHAK1}, pemegang Nomor Induk Kependudukan {NIK_PIHAK1};",
-      "– selanjutnya disebut Pemberi Kuasa.",
-      "Penghadap menerangkan dengan ini memberi kuasa kepada Tuan/Nyonya {NAMA_PIHAK2}, bertempat tinggal di {ALAMAT_PIHAK2}, pemegang Nomor Induk Kependudukan {NIK_PIHAK2};",
-      "– selanjutnya disebut Penerima Kuasa.",
-      "KHUSUS untuk {OBJEK_KUASA}."] },
-    jualbeli: { judul: "PERJANJIAN PENGIKATAN JUAL BELI", isi: ["Berhadapan dengan saya, {NOTARIS}, Notaris di {KEDUDUKAN}, dengan dihadiri oleh saksi-saksi yang saya, Notaris, kenal dan akan disebut pada bagian akhir akta ini:",
-      "I. Tuan/Nyonya {NAMA_PIHAK1}, lahir di {TTL_PIHAK1}, bertempat tinggal di {ALAMAT_PIHAK1}, pemegang Nomor Induk Kependudukan {NIK_PIHAK1};",
-      "– selanjutnya disebut Pihak Pertama.",
-      "II. Tuan/Nyonya {NAMA_PIHAK2}, lahir di {TTL_PIHAK2}, bertempat tinggal di {ALAMAT_PIHAK2}, pemegang Nomor Induk Kependudukan {NIK_PIHAK2};",
-      "– selanjutnya disebut Pihak Kedua.",
-      "Para penghadap menerangkan bahwa Pihak Pertama mengikatkan diri untuk menjual kepada Pihak Kedua {OBJEK} dengan harga {HARGA}."] }
-  };
+  /* 3. Template akta (dari templates.js, sumber: templates/akta.json) dengan isian ber-tag */
   var aktaTerakhir = null;
-  function buatTemplate(kode, nomorAngka, sementara) {
-    var t = TEMPLATE[kode], nomor = Terbilang.angka(nomorAngka);
-    aktaTerakhir = { nomor: nomorAngka, sifat_akta: t.judul.charAt(0) + t.judul.slice(1).toLowerCase() };
+  function buatTemplate(kode, nomorAngka) {
+    var t = AktaraTemplates[kode];
+    aktaTerakhir = { nomor: nomorAngka, sifat_akta: t.sifat };
     Word.run(function (ctx) {
-      var body = ctx.document.getSelection();
-      var awal = [t.judul, "Nomor : " + nomor, "Pada hari ini, {HARI}, tanggal {TANGGAL}, pukul {JAM}."].concat(t.isi);
-      var last = body;
-      // Sisip dari bawah ke atas lewat "After" berurutan
-      var paras = [];
-      awal.forEach(function (baris, i) {
-        last = i === 0 ? body.insertParagraph(baris, "Before") : last.insertParagraph(baris, "After");
+      var sel = ctx.document.getSelection();
+      var baris = [], tengah = [];
+      t.judul.forEach(function (j) { baris.push(j); tengah.push("judul"); });
+      baris.push("Nomor : " + Terbilang.nomorAkta(nomorAngka)); tengah.push("nomor");
+      t.isi.forEach(function (x) {
+        if (x.charAt(0) === "^") { baris.push(x.slice(1)); tengah.push("tengah"); }
+        else { baris.push(x); tengah.push(""); }
+      });
+      var paras = [], last = sel;
+      baris.forEach(function (b, i) {
+        last = i === 0 ? sel.insertParagraph(b, "Before") : last.insertParagraph(b, "After");
         paras.push(last);
       });
       return ctx.sync().then(function () {
-        paras[0].alignment = "Centered"; paras[0].font.bold = true;
-        paras[1].alignment = "Centered";
-        // Bungkus setiap {FIELD} menjadi content control ber-tag
+        paras.forEach(function (p, i) {
+          // Format praktik akta: Courier New 12, spasi tepat 25 pt, rata kiri-kanan
+          p.font.name = "Courier New"; p.font.size = 12; p.lineSpacing = 25; p.spaceAfter = 0;
+          p.alignment = tengah[i] ? "Centered" : "Justified";
+          if (tengah[i] === "judul") p.font.bold = true;
+        });
         var semua = [];
         paras.forEach(function (p) { var s = p.search("\\{[A-Z0-9_]@\\}", { matchWildcards: true }); s.load("items/text"); semua.push(s); });
         return ctx.sync().then(function () {
@@ -122,8 +117,25 @@
               var cc = r.insertContentControl(); cc.tag = tag; cc.title = tag.replace(/_/g, " "); cc.appearance = "Tags";
             });
           });
-          return ctx.sync().then(function () { status("Template " + t.judul + " dibuat. Isi data di tab Pihak."); });
+          return ctx.sync().then(function () { status("Akta " + t.sifat + " nomor " + nomorAngka + " dibuat. Buka tab Pihak > Muat isian."); });
         });
+      });
+    }).catch(fail);
+  }
+
+  /* Muat daftar isian unik dari dokumen ke tab Pihak */
+  function muatIsian() {
+    Word.run(function (ctx) {
+      var cc = ctx.document.contentControls; cc.load("items/tag,items/title,items/text");
+      return ctx.sync().then(function () {
+        var wadah = document.getElementById("daftarIsian"), sudah = {}, html = "";
+        cc.items.forEach(function (c) {
+          if (!c.tag || sudah[c.tag]) return; sudah[c.tag] = 1;
+          var isi = /^\{.*\}$/.test(c.text) ? "" : c.text;
+          html += '<label>' + (c.title || c.tag) + '</label><input data-tag="' + c.tag + '" value="' + isi.replace(/"/g, "&quot;") + '">';
+        });
+        wadah.innerHTML = html || '<p class="hint">Belum ada isian. Buat akta dari template dulu.</p>';
+        status(Object.keys(sudah).length + " isian dimuat.");
       });
     }).catch(fail);
   }
@@ -203,7 +215,8 @@
     };
     document.getElementById("btnRepertorium").onclick = function () {
       if (!aktaTerakhir) return status("Buat akta dari template dulu.", true);
-      var p1 = document.querySelector('[data-tag="NAMA_PIHAK1"]').value, p2 = document.querySelector('[data-tag="NAMA_PIHAK2"]').value;
+      var ambil = function (t) { var e = document.querySelector('[data-tag="' + t + '"]'); return e ? e.value : ""; };
+      var p1 = ambil("NAMA_PIHAK1"), p2 = ambil("NAMA_PIHAK2");
       var tgl = new Date(), iso = tgl.getFullYear() + "-" + ("0" + (tgl.getMonth() + 1)).slice(-2) + "-" + ("0" + tgl.getDate()).slice(-2);
       AktaraServer.catatRepertorium({ nomor: aktaTerakhir.nomor, tanggal: iso, sifat_akta: aktaTerakhir.sifat_akta,
         penghadap: [p1, p2].filter(function (x) { return x; }).join("; ") || "-" }, function (err) {
@@ -216,6 +229,11 @@
         if (err) return status("Aktivasi gagal: " + err.pesan, true);
         status("Aktivasi berhasil untuk " + d.kantor + "."); tampilLisensi(AktaraServer.statusLisensi());
       });
+    };
+    document.getElementById("btnMuat").onclick = muatIsian;
+    document.getElementById("btnLuas").onclick = function () {
+      var n = parseInt(val("inRupiah").replace(/\D/g, ""), 10); if (isNaN(n)) return status("Isi angka luas dulu.", true);
+      sisip(Terbilang.luas(n));
     };
     document.getElementById("btnIsi").onclick = function () {
       var d = {}; var els = document.querySelectorAll("[data-tag]");

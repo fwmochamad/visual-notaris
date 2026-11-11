@@ -6,6 +6,7 @@
 <title>Aktara</title>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <script src="terbilang.js"></script>
+<script src="templates.js"></script>
 <script src="server.js"></script>
 <script src="akta.js"></script>
 <style>
@@ -37,7 +38,7 @@
 
 <section id="pAkta" style="display:block">
   <label>Jenis akta</label>
-  <select id="inTemplate"><option value="kuasa">Kuasa</option><option value="jualbeli">Pengikatan Jual Beli</option></select>
+  <select id="inTemplate"><option value="kuasa">Kuasa</option><option value="jualbeli">Pengikatan Jual Beli</option><option value="skmht">SKMHT</option></select>
   <button id="btnTemplate">Buat akta baru</button>
   <div class="hint">Nomor akta otomatis bertambah setiap akta baru.</div>
   <label>Kedudukan notaris</label>
@@ -54,20 +55,12 @@
   <div class="row"><input id="inJam" type="time"><select id="inZona"><option>WIB</option><option>WITA</option><option>WIT</option></select></div>
   <button id="btnJam">Sisipkan jam</button>
   <label>Angka / nominal</label><input id="inRupiah" placeholder="1500000">
-  <div class="row"><button id="btnRupiah">Rupiah</button><button id="btnAngka" class="alt">Angka biasa</button></div>
+  <div class="row"><button id="btnRupiah">Rupiah</button><button id="btnLuas" class="alt">Luas M²</button><button id="btnAngka" class="alt">Angka</button></div>
 </section>
 
 <section id="pPihak">
-  <label>Nama notaris</label><input data-tag="NOTARIS">
-  <label>Kedudukan</label><input data-tag="KEDUDUKAN">
-  <label>Hari / tanggal / jam akta</label>
-  <input data-tag="HARI" placeholder="Rabu"><input data-tag="TANGGAL" placeholder="sebelas November dua ribu dua puluh enam" style="margin-top:4px"><input data-tag="JAM" placeholder="10.00 WIB" style="margin-top:4px">
-  <label>Pihak 1: nama, TTL, alamat, NIK</label>
-  <input data-tag="NAMA_PIHAK1"><input data-tag="TTL_PIHAK1" style="margin-top:4px"><input data-tag="ALAMAT_PIHAK1" style="margin-top:4px"><input data-tag="NIK_PIHAK1" style="margin-top:4px">
-  <label>Pihak 2: nama, TTL, alamat, NIK</label>
-  <input data-tag="NAMA_PIHAK2"><input data-tag="TTL_PIHAK2" style="margin-top:4px"><input data-tag="ALAMAT_PIHAK2" style="margin-top:4px"><input data-tag="NIK_PIHAK2" style="margin-top:4px">
-  <label>Objek / harga / isi kuasa</label>
-  <input data-tag="OBJEK"><input data-tag="HARGA" style="margin-top:4px"><input data-tag="OBJEK_KUASA" style="margin-top:4px">
+  <button id="btnMuat" class="alt">Muat isian dari dokumen</button>
+  <div id="daftarIsian"><p class="hint">Klik "Muat isian" setelah membuat akta.</p></div>
   <button id="btnIsi">Isi ke dokumen</button>
   <div class="hint">Data yang sama terisi di semua tempat dalam akta.</div>
 </section>

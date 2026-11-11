@@ -9,6 +9,10 @@ var cases = [
 ];
 cases.forEach(function (c) { assert.strictEqual(T.terbilang(c[0]), c[1], c[0]); });
 assert.strictEqual(T.tanggal(new Date(2026, 10, 11)), "11-11-2026 (sebelas November dua ribu dua puluh enam)");
-assert.strictEqual(T.jam(10, 30), "10.30 WIB (sepuluh lewat tiga puluh menit Waktu Indonesia Barat)");
-assert.strictEqual(T.rupiah(1500000), "Rp1.500.000,00 (satu juta lima ratus ribu Rupiah)");
-console.log("Semua " + (cases.length + 3) + " tes lulus");
+assert.strictEqual(T.jam(10, 30), "10.30 WIB (sepuluh lebih tiga puluh menit Waktu Indonesia Barat)");
+assert.strictEqual(T.rupiah(1500000), "Rp.1.500.000,- (satu juta lima ratus ribu rupiah)");
+assert.strictEqual(T.rupiah(367000000), "Rp.367.000.000,- (tiga ratus enam puluh tujuh juta rupiah)");
+assert.strictEqual(T.jam(12, 30), "12.30 WIB (dua belas lebih tiga puluh menit Waktu Indonesia Barat)");
+assert.strictEqual(T.luas(72), "72 M\u00b2 (tujuh puluh dua Meter persegi)");
+assert.strictEqual(T.nomorAkta(22), "22.-");
+console.log("Semua " + (cases.length + 7) + " tes lulus");

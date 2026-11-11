@@ -10,6 +10,9 @@ End Sub
 
 Public Sub AkKuasa(control As IRibbonControl): BuatTemplate "kuasa": End Sub
 Public Sub AkPPJB(control As IRibbonControl): BuatTemplate "jualbeli": End Sub
+Public Sub AkSKMHT(control As IRibbonControl): BuatTemplate "skmht": End Sub
+Public Sub AkLuas(control As IRibbonControl): SisipLuas: End Sub
+Public Sub AkHalaman(control As IRibbonControl): AturHalamanAkta: End Sub
 Public Sub AkIsiData(control As IRibbonControl): IsiDataPihak: End Sub
 Public Sub AkSalinan(control As IRibbonControl): JadikanSalinan: End Sub
 Public Sub AkRepertorium(control As IRibbonControl): CatatRepertorium: End Sub
@@ -65,6 +68,30 @@ Public Sub SisipAngka(ByVal rupiah As Boolean)
     If rupiah Then Sisip AktaraTerbilang.TerbilangRupiah(CDbl(s)) Else Sisip AktaraTerbilang.TerbilangAngka(CDbl(s))
 End Sub
 
+Public Sub SisipLuas()
+    Dim s As String
+    s = HanyaAngka(InputBox("Luas (M2):", "Aktara - Terbilang luas"))
+    If Len(s) = 0 Then Exit Sub
+    Sisip AktaraTerbilang.TerbilangLuas(CDbl(s))
+End Sub
+
+' Halaman akta sesuai praktik: A4, margin kiri 5,5 cm, kanan 1 cm, atas 1,8 cm, bawah 2,2 cm
+Public Sub AturHalamanAkta()
+    With ActiveDocument.PageSetup
+        .PaperSize = 7 ' wdPaperA4
+        .LeftMargin = CentimetersToPoints(5.5)
+        .RightMargin = CentimetersToPoints(1)
+        .TopMargin = CentimetersToPoints(1.8)
+        .BottomMargin = CentimetersToPoints(2.2)
+    End With
+    ' Posisi tab garis mengikuti lebar halaman baru
+    On Error Resume Next
+    Dim st As Style: Set st = ActiveDocument.Styles(STYLE_GARIS)
+    On Error GoTo 0
+    If Not st Is Nothing Then PastikanStyle
+    StatusBar = "Aktara: halaman akta diatur (A4, margin kiri 5,5 cm)."
+End Sub
+
 ' Pilih angka di dokumen (mis. 1500000) lalu klik -> "1500000 (satu juta lima ratus ribu)"
 Public Sub TerbilangkanPilihan()
     Dim s As String: s = HanyaAngka(Selection.Text)
@@ -85,8 +112,9 @@ Private Sub PastikanStyle()
         st.Font.Name = "Courier New"
         st.Font.Size = 12
         st.ParagraphFormat.SpaceAfter = 0
-        st.ParagraphFormat.LineSpacingRule = 1 ' wdLineSpace1pt5
-        st.ParagraphFormat.Alignment = 0 ' kiri
+        st.ParagraphFormat.LineSpacingRule = 4 ' wdLineSpaceExactly
+        st.ParagraphFormat.LineSpacing = 25
+        st.ParagraphFormat.Alignment = 3 ' rata kiri-kanan
     End If
     ' Tab kanan ber-leader strip tepat di batas kanan teks halaman ini
     Dim lebar As Single
@@ -130,55 +158,50 @@ Public Sub HapusGaris()
     StatusBar = "Aktara: garis dihapus (" & n & ")."
 End Sub
 
-' ================= Template akta =================
-Private Function IsiTemplate(ByVal kode As String, ByRef judul As String) As Variant
-    Dim pembuka As String
-    pembuka = "Berhadapan dengan saya, {NOTARIS}, Notaris di {KEDUDUKAN}, dengan dihadiri oleh saksi-saksi yang saya, Notaris, kenal dan akan disebut pada bagian akhir akta ini:"
-    If kode = "kuasa" Then
-        judul = "KUASA"
-        IsiTemplate = Array(pembuka, _
-            "Tuan/Nyonya {NAMA_PIHAK1}, lahir di {TTL_PIHAK1}, Warga Negara Indonesia, bertempat tinggal di {ALAMAT_PIHAK1}, pemegang Nomor Induk Kependudukan {NIK_PIHAK1};", _
-            "- selanjutnya disebut Pemberi Kuasa.", _
-            "Penghadap menerangkan dengan ini memberi kuasa kepada Tuan/Nyonya {NAMA_PIHAK2}, bertempat tinggal di {ALAMAT_PIHAK2}, pemegang Nomor Induk Kependudukan {NIK_PIHAK2};", _
-            "- selanjutnya disebut Penerima Kuasa.", _
-            "KHUSUS untuk {OBJEK_KUASA}.")
-    Else
-        judul = "PERJANJIAN PENGIKATAN JUAL BELI"
-        IsiTemplate = Array(pembuka, _
-            "I. Tuan/Nyonya {NAMA_PIHAK1}, lahir di {TTL_PIHAK1}, bertempat tinggal di {ALAMAT_PIHAK1}, pemegang Nomor Induk Kependudukan {NIK_PIHAK1};", _
-            "- selanjutnya disebut Pihak Pertama.", _
-            "II. Tuan/Nyonya {NAMA_PIHAK2}, lahir di {TTL_PIHAK2}, bertempat tinggal di {ALAMAT_PIHAK2}, pemegang Nomor Induk Kependudukan {NIK_PIHAK2};", _
-            "- selanjutnya disebut Pihak Kedua.", _
-            "Para penghadap menerangkan bahwa Pihak Pertama mengikatkan diri untuk menjual kepada Pihak Kedua {OBJEK} dengan harga {HARGA}.")
-    End If
-End Function
-
+' ================= Template akta (dari AktaraTemplate, sumber templates/akta.json) =================
 Public Sub BuatTemplate(ByVal kode As String)
     If Not AktaraServer.BolehPakai() Then Exit Sub
-    Dim judul As String, isi As Variant, nomor As Long, sementara As Boolean
-    isi = IsiTemplate(kode, judul)
+    Dim judul() As String, isi() As String, sifat As String
+    If Not AktaraTemplate.AmbilTemplate(kode, judul, isi, sifat) Then MsgBox "Template tidak dikenal: " & kode, vbExclamation, "Aktara": Exit Sub
+    Dim nomor As Long, sementara As Boolean
     nomor = AktaraServer.NomorAktaBerikutnya(sementara)
 
-    Dim r As Range, awal As Long, i As Long
+    Dim r As Range, awal As Long, i As Long, baris As String, p As Paragraph, tengah As Object
+    Set tengah = CreateObject("Scripting.Dictionary")
     Set r = Selection.Range
-    r.Collapse 1 ' wdCollapseStart
+    r.Collapse 1
     awal = r.Start
-    r.InsertAfter judul & vbCr & "Nomor : " & AktaraTerbilang.TerbilangAngka(nomor) & vbCr & _
-        "Pada hari ini, {HARI}, tanggal {TANGGAL}, pukul {JAM}." & vbCr
-    For i = LBound(isi) To UBound(isi)
-        r.InsertAfter isi(i) & vbCr
+    For i = LBound(judul) To UBound(judul)
+        r.InsertAfter judul(i) & vbCr: tengah.Add tengah.Count, "judul"
     Next
-    ActiveDocument.Range(awal, awal).Paragraphs(1).Alignment = 1 ' tengah
-    ActiveDocument.Range(awal, awal).Paragraphs(1).Range.Font.Bold = True
-    ActiveDocument.Range(awal, awal).Paragraphs(1).Next.Alignment = 1
+    r.InsertAfter "Nomor : " & AktaraTerbilang.FormatNomorAkta(nomor) & vbCr: tengah.Add tengah.Count, "nomor"
+    For i = LBound(isi) To UBound(isi)
+        baris = isi(i)
+        If Left$(baris, 1) = "^" Then
+            r.InsertAfter Mid$(baris, 2) & vbCr: tengah.Add tengah.Count, "tengah"
+        Else
+            r.InsertAfter baris & vbCr: tengah.Add tengah.Count, ""
+        End If
+    Next
+    ' Format praktik akta: Courier New 12, spasi tepat 25 pt, rata kiri-kanan, judul di tengah
+    i = 0
+    For Each p In ActiveDocument.Range(awal, r.End).Paragraphs
+        If i < tengah.Count Then
+            p.Range.Font.Name = "Courier New": p.Range.Font.Size = 12
+            p.LineSpacingRule = 4: p.LineSpacing = 25: p.SpaceAfter = 0
+            If tengah(i) = "" Then p.Alignment = 3 Else p.Alignment = 1
+            If tengah(i) = "judul" Then p.Range.Font.Bold = True
+        End If
+        i = i + 1
+    Next
     BungkusIsian ActiveDocument.Range(awal, r.End)
 
     ActiveDocument.Variables("aktara.nomor").Value = CStr(nomor)
-    ActiveDocument.Variables("aktara.sifat").Value = StrConv(judul, vbProperCase)
+    ActiveDocument.Variables("aktara.sifat").Value = sifat
     If sementara Then
         MsgBox "Server tidak terjangkau. Nomor akta " & nomor & " adalah nomor SEMENTARA - cek ulang sebelum akta ditandatangani.", vbExclamation, "Aktara"
     Else
-        StatusBar = "Aktara: akta " & judul & " nomor " & nomor & " dibuat. Klik 'Isi Data Pihak'."
+        StatusBar = "Aktara: akta " & sifat & " nomor " & nomor & " dibuat. Klik 'Isi Data Pihak'."
     End If
 End Sub
 

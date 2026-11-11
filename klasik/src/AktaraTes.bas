@@ -26,8 +26,12 @@ Public Sub AktaraJalankanTes()
         Cek AktaraTerbilang.Terbilang(kasus(i)), kasus(i + 1), CStr(kasus(i))
     Next
     Cek AktaraTerbilang.TerbilangTanggal(DateSerial(2026, 11, 11)), "11-11-2026 (sebelas November dua ribu dua puluh enam)", "tanggal"
-    Cek AktaraTerbilang.TerbilangJam(10, 30), "10.30 WIB (sepuluh lewat tiga puluh menit Waktu Indonesia Barat)", "jam"
-    Cek AktaraTerbilang.TerbilangRupiah(1500000), "Rp1.500.000,00 (satu juta lima ratus ribu Rupiah)", "rupiah"
+    Cek AktaraTerbilang.TerbilangJam(10, 30), "10.30 WIB (sepuluh lebih tiga puluh menit Waktu Indonesia Barat)", "jam"
+    Cek AktaraTerbilang.TerbilangRupiah(1500000), "Rp.1.500.000,- (satu juta lima ratus ribu rupiah)", "rupiah"
+    Cek AktaraTerbilang.TerbilangRupiah(367000000), "Rp.367.000.000,- (tiga ratus enam puluh tujuh juta rupiah)", "rupiah 2"
+    Cek AktaraTerbilang.TerbilangJam(12, 30), "12.30 WIB (dua belas lebih tiga puluh menit Waktu Indonesia Barat)", "jam 2"
+    Cek AktaraTerbilang.TerbilangLuas(72), "72 M" & ChrW(178) & " (tujuh puluh dua Meter persegi)", "luas"
+    Cek AktaraTerbilang.FormatNomorAkta(22), "22.-", "nomor"
     Cek AktaraServer.JsonAmbil("{""token"":""a.b"",""nomor"":7,""kantor"":""Kantor \""X\""""}", "nomor"), "7", "json angka"
     Cek AktaraServer.JsonAmbil("{""token"":""a.b"",""nomor"":7,""kantor"":""Kantor \""X\""""}", "kantor"), "Kantor ""X""", "json teks"
     MsgBox "Tes Aktara: " & lulus & " lulus, " & gagal & " gagal." & IIf(gagal > 0, vbCr & "Lihat Immediate Window (Ctrl+G) di editor VBA.", ""), _

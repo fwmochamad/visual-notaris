@@ -34,19 +34,23 @@
     return pad(d.getDate()) + "-" + pad(d.getMonth() + 1) + "-" + d.getFullYear() +
       " (" + terbilang(d.getDate()) + " " + BULAN[d.getMonth()] + " " + terbilang(d.getFullYear()) + ")";
   }
-  /* "10.30 WIB (sepuluh lewat tiga puluh menit Waktu Indonesia Barat)" */
+  /* "10.30 WIB (sepuluh lebih tiga puluh menit Waktu Indonesia Barat)" */
   function jam(h, m, zona) {
     var Z = { WIB: "Waktu Indonesia Barat", WITA: "Waktu Indonesia Tengah", WIT: "Waktu Indonesia Timur" };
     zona = zona || "WIB";
     return pad(h) + "." + pad(m) + " " + zona + " (" + (h === 0 ? "nol" : terbilang(h)) +
-      " lewat " + (m === 0 ? "nol" : terbilang(m)) + " menit " + Z[zona] + ")";
+      " lebih " + (m === 0 ? "nol" : terbilang(m)) + " menit " + Z[zona] + ")";
   }
-  /* "Rp1.500.000,00 (satu juta lima ratus ribu Rupiah)" */
+  /* Format praktik akta: "Rp.367.000.000,- (tiga ratus enam puluh tujuh juta rupiah)" */
   function rupiah(n) {
-    return "Rp" + ribuan(n) + ",00 (" + terbilang(n) + " Rupiah)";
+    return "Rp." + ribuan(n) + ",- (" + terbilang(n) + " rupiah)";
   }
+  /* "72 M² (tujuh puluh dua Meter persegi)" */
+  function luas(n) { return n + " M² (" + terbilang(n) + " Meter persegi)"; }
+  /* Nomor akta: "22.-" */
+  function nomorAkta(n) { return n + ".-"; }
   function angka(n) { return n + " (" + terbilang(n) + ")"; }
 
-  var api = { terbilang: terbilang, tanggal: tanggal, jam: jam, rupiah: rupiah, angka: angka, BULAN: BULAN };
+  var api = { terbilang: terbilang, tanggal: tanggal, jam: jam, rupiah: rupiah, angka: angka, luas: luas, nomorAkta: nomorAkta, BULAN: BULAN };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.Terbilang = api;
 })(this);

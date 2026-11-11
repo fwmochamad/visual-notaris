@@ -68,7 +68,7 @@ Public Function TerbilangTanggal(ByVal d As Date) As String
         " (" & Terbilang(Day(d)) & " " & NamaBulan(Month(d)) & " " & Terbilang(Year(d)) & ")"
 End Function
 
-' "10.30 WIB (sepuluh lewat tiga puluh menit Waktu Indonesia Barat)"
+' "10.30 WIB (sepuluh lebih tiga puluh menit Waktu Indonesia Barat)"
 Public Function TerbilangJam(ByVal jam As Long, ByVal menit As Long, Optional ByVal zona As String = "WIB") As String
     Dim nama As String
     Select Case UCase$(zona)
@@ -77,12 +77,22 @@ Public Function TerbilangJam(ByVal jam As Long, ByVal menit As Long, Optional By
         Case Else: zona = "WIB": nama = "Waktu Indonesia Barat"
     End Select
     TerbilangJam = Pad2(jam) & "." & Pad2(menit) & " " & UCase$(zona) & " (" & Terbilang(jam) & _
-        " lewat " & Terbilang(menit) & " menit " & nama & ")"
+        " lebih " & Terbilang(menit) & " menit " & nama & ")"
 End Function
 
-' "Rp1.500.000,00 (satu juta lima ratus ribu Rupiah)"
+ Format praktik akta: "Rp.367.000.000,- (tiga ratus enam puluh tujuh juta rupiah)"
 Public Function TerbilangRupiah(ByVal n As Double) As String
-    TerbilangRupiah = "Rp" & Ribuan(n) & ",00 (" & Terbilang(n) & " Rupiah)"
+    TerbilangRupiah = "Rp." & Ribuan(n) & ",- (" & Terbilang(n) & " rupiah)"
+End Function
+
+' "72 M2 (tujuh puluh dua Meter persegi)" - M dengan superskrip 2
+Public Function TerbilangLuas(ByVal n As Double) As String
+    TerbilangLuas = Format$(n, "0") & " M" & ChrW(178) & " (" & Terbilang(n) & " Meter persegi)"
+End Function
+
+' Nomor akta: "22.-"
+Public Function FormatNomorAkta(ByVal n As Long) As String
+    FormatNomorAkta = CStr(n) & ".-"
 End Function
 
 Public Function TerbilangAngka(ByVal n As Double) As String
