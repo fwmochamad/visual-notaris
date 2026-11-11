@@ -22,11 +22,10 @@ Isi Data Pihak, terbilang, garis akta, Catat Repertorium, Jadikan Salinan. Tes o
 - `build.py` — membangun `dist/Aktara.dotm` (ribbon tanpa makro)
 
 ## Merakit Aktara.dotm (sekali per rilis)
-1. `python klasik/build.py`
-2. Buka `klasik/dist/Aktara.dotm` di Word (File › Open).
-3. Alt+F11 › File › Import File… › impor keempat file `klasik/src/*.bas`.
-4. Simpan (Ctrl+S), tutup Word.
-5. Uji: Alt+F8 › `AktaraJalankanTes` › Run (harus 24 lulus).
+1. Buka `klasik/dist/Aktara.dotm` di Word (File › Open). Bila ribbon berubah, bangun ulang dengan `python klasik/build.py` (hasil di `build/`).
+2. Alt+F11 › hapus modul yang berubah › File › Import File… › impor `klasik/src/*.bas` yang baru.
+3. Simpan (Ctrl+S), tutup Word.
+4. Uji: Alt+F8 › `AktaraJalankanTes` › Run (harus 24 lulus).
 
 ## Memasang di komputer kantor
 Salin `Aktara.dotm` ke folder STARTUP Word: tekan Win+R, ketik `%APPDATA%\Microsoft\Word\STARTUP`, Enter, lalu tempel file.

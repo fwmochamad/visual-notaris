@@ -1,8 +1,8 @@
-"""Membangun klasik/dist/Aktara.dotm (ribbon tanpa makro).
+"""Membangun klasik/build/Aktara-tanpa-makro.dotm (ribbon tanpa makro).
 Makro VBA dari src/*.bas diimpor sekali di Word lalu disimpan (lihat README)."""
 import zipfile, pathlib
 root = pathlib.Path(__file__).parent
-out = root / "dist" / "Aktara.dotm"
+out = root / "build" / "Aktara-tanpa-makro.dotm"  # jangan timpa dist/Aktara.dotm (berisi makro)
 out.parent.mkdir(exist_ok=True)
 CT = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
