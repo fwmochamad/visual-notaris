@@ -95,8 +95,10 @@
       "– selanjutnya disebut Pihak Kedua.",
       "Para penghadap menerangkan bahwa Pihak Pertama mengikatkan diri untuk menjual kepada Pihak Kedua {OBJEK} dengan harga {HARGA}."] }
   };
-  function buatTemplate(kode) {
-    var t = TEMPLATE[kode], nomor = ambilNomor(false);
+  var aktaTerakhir = null;
+  function buatTemplate(kode, nomorAngka, sementara) {
+    var t = TEMPLATE[kode], nomor = Terbilang.angka(nomorAngka);
+    aktaTerakhir = { nomor: nomorAngka, sifat_akta: t.judul.charAt(0) + t.judul.slice(1).toLowerCase() };
     Word.run(function (ctx) {
       var body = ctx.document.getSelection();
       var awal = [t.judul, "Nomor : " + nomor, "Pada hari ini, {HARI}, tanggal {TANGGAL}, pukul {JAM}."].concat(t.isi);
@@ -155,12 +157,19 @@
     }).catch(fail);
   }
 
-  /* 6. Penomoran akta per bulan (disimpan lokal di komputer) */
-  function kunci() { var d = new Date(); return "ak.nomor." + d.getFullYear() + "-" + (d.getMonth() + 1); }
-  function ambilNomor(naikkan) {
-    var n = 1;
-    try { n = parseInt(localStorage.getItem(kunci()) || "0", 10) + 1; if (naikkan) localStorage.setItem(kunci(), String(n)); } catch (e) {}
-    return Terbilang.angka(n);
+  /* 6. Lisensi & repertorium lewat AktaraServer (server.js) */
+  function tampilLisensi(st) {
+    var el = document.getElementById("infoLisensi");
+    var teks = { belum: "Belum diaktifkan.", aktif: "Aktif — " + (st.kantor || ""),
+      offline: "Offline — lisensi tetap berlaku " + st.sisaHariOffline + " hari lagi.",
+      kedaluwarsa: "Lisensi perlu dicek ulang. Sambungkan internet atau hubungi dukungan Aktara." };
+    el.textContent = (st.pesan ? st.pesan + " " : "") + teks[st.status];
+    document.getElementById("formAktivasi").style.display = st.status === "belum" ? "block" : "none";
+  }
+  function bolehPakai() {
+    var st = AktaraServer.statusLisensi().status;
+    if (st === "aktif" || st === "offline") return true;
+    status("Aktifkan lisensi Aktara di tab Lisensi terlebih dahulu.", true); return false;
   }
 
   function val(id) { return document.getElementById(id).value; }
@@ -184,7 +193,30 @@
       var n = parseInt(val("inRupiah").replace(/\D/g, ""), 10); if (isNaN(n)) return status("Isi angka dulu.", true);
       sisip(Terbilang.angka(n));
     };
-    document.getElementById("btnTemplate").onclick = function () { ambilNomor(true); buatTemplate(val("inTemplate")); };
+    document.getElementById("btnTemplate").onclick = function () {
+      if (!bolehPakai()) return;
+      var kode = val("inTemplate");
+      AktaraServer.nomorAkta(function (err, r) {
+        buatTemplate(kode, r.nomor);
+        if (r.sementara) setTimeout(function () { status("Offline: nomor " + r.nomor + " SEMENTARA. Cek ulang sebelum akta ditandatangani.", true); }, 1500);
+      });
+    };
+    document.getElementById("btnRepertorium").onclick = function () {
+      if (!aktaTerakhir) return status("Buat akta dari template dulu.", true);
+      var p1 = document.querySelector('[data-tag="NAMA_PIHAK1"]').value, p2 = document.querySelector('[data-tag="NAMA_PIHAK2"]').value;
+      var tgl = new Date(), iso = tgl.getFullYear() + "-" + ("0" + (tgl.getMonth() + 1)).slice(-2) + "-" + ("0" + tgl.getDate()).slice(-2);
+      AktaraServer.catatRepertorium({ nomor: aktaTerakhir.nomor, tanggal: iso, sifat_akta: aktaTerakhir.sifat_akta,
+        penghadap: [p1, p2].filter(function (x) { return x; }).join("; ") || "-" }, function (err) {
+        status(err ? "Gagal mencatat repertorium: " + err.pesan : "Akta nomor " + aktaTerakhir.nomor + " tercatat di repertorium.", !!err);
+      });
+    };
+    document.getElementById("btnAktivasi").onclick = function () {
+      if (val("inServer")) AktaraServer.aturServer(val("inServer"));
+      AktaraServer.aktivasi(val("inKode"), val("inNamaPc"), function (err, d) {
+        if (err) return status("Aktivasi gagal: " + err.pesan, true);
+        status("Aktivasi berhasil untuk " + d.kantor + "."); tampilLisensi(AktaraServer.statusLisensi());
+      });
+    };
     document.getElementById("btnIsi").onclick = function () {
       var d = {}; var els = document.querySelectorAll("[data-tag]");
       for (var i = 0; i < els.length; i++) d[els[i].getAttribute("data-tag")] = els[i].value;
@@ -196,6 +228,9 @@
       for (var j = 0; j < tabs.length; j++) { tabs[j].className = "tab"; document.getElementById(tabs[j].getAttribute("data-p")).style.display = "none"; }
       this.className = "tab on"; document.getElementById(this.getAttribute("data-p")).style.display = "block";
     };
-    status("Siap. Nomor akta berikutnya: " + ambilNomor(false));
+    document.getElementById("inServer").value = AktaraServer.urlServer();
+    tampilLisensi(AktaraServer.statusLisensi());
+    AktaraServer.cekLisensi(function (e, st) { tampilLisensi(st); });
+    status("Siap.");
   });
 })();

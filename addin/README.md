@@ -10,6 +10,7 @@ Kode ditulis ES5 agar kompatibel dengan engine IE11 di Word 2016 Windows.
 | Akta | Template akta (Kuasa, PPJB) dengan isian otomatis, penomoran akta per bulan, ubah minuta jadi SALINAN |
 | Terbilang | Tanggal, jam (WIB/WITA/WIT), Rupiah, dan angka biasa dalam huruf |
 | Pihak | Isi data notaris & para pihak sekali, terisi di semua tempat dalam akta |
+| Lisensi | Aktivasi dengan kode lisensi; tetap jalan offline sampai 30 hari |
 | Garis | Garis strip pengisi akhir baris (tab-leader), menyesuaikan otomatis saat teks diedit |
 
 ## Mencoba di komputer sendiri
@@ -27,4 +28,5 @@ Kode ditulis ES5 agar kompatibel dengan engine IE11 di Word 2016 Windows.
 
 ## Catatan batasan
 - Word 2010/2013 tidak didukung oleh teknologi add-in modern; lihat dokumen spesifikasi untuk jalur pendamping (VSTO).
-- Nomor akta disimpan lokal per komputer; versi produksi memakai server lisensi/sinkronisasi kantor.
+- Nomor akta diambil dari server (tidak ganda antar komputer). Saat offline, nomor diambil dari cadangan lokal dan ditandai SEMENTARA.
+- Untuk uji lokal, jalankan server (lihat `server/README.md`) dan isi alamat server di tab Lisensi, mis. `http://localhost:8080`.

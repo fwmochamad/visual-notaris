@@ -6,6 +6,7 @@
 <title>Aktara</title>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <script src="terbilang.js"></script>
+<script src="server.js"></script>
 <script src="akta.js"></script>
 <style>
   body { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; margin: 0; color: #222; }
@@ -31,6 +32,7 @@
   <div class="tab" data-p="pTerbilang">Terbilang</div>
   <div class="tab" data-p="pPihak">Pihak</div>
   <div class="tab" data-p="pGaris">Garis</div>
+  <div class="tab" data-p="pLisensi">Lisensi</div>
 </nav>
 
 <section id="pAkta" style="display:block">
@@ -41,6 +43,8 @@
   <label>Kedudukan notaris</label>
   <input id="inKedudukan" placeholder="mis. Kota Bandung">
   <button id="btnSalinan" class="alt">Jadikan SALINAN</button>
+  <button id="btnRepertorium" class="alt">Catat ke repertorium</button>
+  <div class="hint">Klik setelah akta final dan data pihak terisi.</div>
 </section>
 
 <section id="pTerbilang">
@@ -72,6 +76,17 @@
   <div class="hint">Pilih paragraf (atau Ctrl+A untuk seluruh akta), lalu klik. Garis strip mengisi sisa baris dan menyesuaikan sendiri saat teks diedit.</div>
   <button id="btnGaris">Pasang garis akta</button>
   <button id="btnHapusGaris" class="alt">Hapus garis</button>
+</section>
+
+<section id="pLisensi">
+  <p id="infoLisensi" class="hint">Memeriksa lisensi…</p>
+  <div id="formAktivasi">
+    <label>Kode lisensi</label><input id="inKode" placeholder="AKT-XXXX-XXXX-XXXX-XXXX">
+    <label>Nama komputer</label><input id="inNamaPc" placeholder="mis. PC Resepsionis">
+    <button id="btnAktivasi">Aktifkan</button>
+  </div>
+  <label>Alamat server</label><input id="inServer">
+  <div class="hint">Biarkan bawaan kecuali kantor memakai server lokal.</div>
 </section>
 
 <p id="status" class="status ok">Memuat…</p>
