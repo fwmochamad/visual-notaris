@@ -109,14 +109,16 @@
       baris.forEach(function (b, i) {
         var potong = b.split(/(\{[A-Z0-9_]+\})/);
         last = i === 0 ? sel.insertParagraph(potong[0], "Before") : last.insertParagraph(potong[0], "After");
+        // Seluruh teks paragraf disisipkan dulu, baru isian dibungkus content control. Bila content
+        // control dibuat lebih awal, teks berikutnya yang disisipkan di "End" ikut masuk ke dalamnya
+        // (terjadi pada paragraf yang diawali isian di Word Online).
+        var isian = [];
         for (var k = 1; k < potong.length; k++) {
           if (!potong[k]) continue;
           var r = last.insertText(potong[k], "End");
-          if (k % 2 === 1) {
-            var tag = potong[k].slice(1, -1);
-            var cc = r.insertContentControl(); cc.tag = tag; cc.title = label(tag);
-          }
+          if (k % 2 === 1) isian.push([r, potong[k].slice(1, -1)]);
         }
+        isian.forEach(function (x) { var cc = x[0].insertContentControl(); cc.tag = x[1]; cc.title = label(x[1]); });
         paras.push(last);
       });
       // Paragraf yang diawali {ISIAN} membuat proxy paragrafnya tidak andal di Word Online, sehingga
