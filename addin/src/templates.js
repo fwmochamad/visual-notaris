@@ -34,38 +34,5 @@
    "Para penghadap dikenal oleh saya, Notaris.",
    "Para penghadap menerangkan bahwa Pihak Pertama mengikatkan diri untuk menjual kepada Pihak Kedua, yang mengikatkan diri untuk membeli dari Pihak Pertama, {OBJEK}, dengan harga sebesar {HARGA}."
   ]
- },
- "skmht": {
-  "judul": [
-   "SURAT KUASA",
-   "MEMBEBANKAN HAK TANGGUNGAN"
-  ],
-  "sifat": "Surat Kuasa Membebankan Hak Tanggungan",
-  "isi": [
-   "Pada hari ini, {HARI}, tanggal {TANGGAL}.",
-   "Pukul {JAM}.",
-   "Hadir dihadapan saya, {NOTARIS}, Notaris di {KEDUDUKAN}, dengan dihadiri oleh saksi-saksi yang saya kenal dan akan disebut pada bagian akhir akta ini :",
-   "I. {SAPAAN_PIHAK1} {NAMA_PIHAK1}, lahir di {TTL_PIHAK1}, Warga Negara Indonesia, {PEKERJAAN_PIHAK1}, pemegang Kartu Tanda Penduduk Nomor {NIK_PIHAK1}, {PERSETUJUAN_PASANGAN};",
-   "- bertempat tinggal di {ALAMAT_PIHAK1}.",
-   "Pemegang hak atas tanah yang akan dijadikan Obyek Hak Tanggungan, selanjutnya disebut Pemberi Kuasa.",
-   "II. {SAPAAN_PIHAK2} {NAMA_PIHAK2}, lahir di {TTL_PIHAK2}, {JABATAN_PIHAK2}, bertempat tinggal di {ALAMAT_PIHAK2}, pemegang Kartu Tanda Penduduk Nomor {NIK_PIHAK2};",
-   "- menurut keterangannya dalam hal ini bertindak dalam jabatannya tersebut berdasarkan {DASAR_KEWENANGAN}, oleh karena itu sah bertindak untuk dan atas nama {KREDITOR}, berkedudukan di {KEDUDUKAN_KREDITOR};",
-   "- selanjutnya disebut Penerima Kuasa.",
-   "Para penghadap dikenal oleh saya, Notaris.",
-   "Pemberi Kuasa menerangkan dengan ini memberi kuasa kepada Penerima Kuasa :",
-   "^KHUSUS",
-   "Untuk membebankan Hak Tanggungan guna menjamin pelunasan utang {DEBITOR}, selaku Debitor, sejumlah {NILAI_UTANG} / sejumlah uang yang dapat ditentukan dikemudian hari berdasarkan perjanjian utang-piutang dengan {KREDITOR} selaku Kreditor, yang dibuktikan dengan {PERJANJIAN_KREDIT}, berikut penambahan, perubahan, perpanjangan serta pembaruannya, sampai sejumlah Nilai Tanggungan Peringkat {PERINGKAT} sebesar {NILAI_TANGGUNGAN}, atas Obyek Hak Tanggungan berupa hak atas tanah yang diuraikan dibawah ini :",
-   "- {JENIS_HAK} Nomor {NOMOR_HAK}, sebagaimana diuraikan dalam Surat Ukur {SURAT_UKUR}, seluas {LUAS}, dengan Nomor Identifikasi Bidang Tanah (NIB) : {NIB}, menurut Sertipikat (Tanda Bukti Hak) dari {KANTOR_PERTANAHAN}, dan Nomor Obyek Pajak (NOP) : {NOP}, terletak di :",
-   "- Provinsi : {PROVINSI},",
-   "- Kabupaten/Kota : {KABUPATEN},",
-   "- Kecamatan : {KECAMATAN},",
-   "- Desa/Kelurahan : {DESA},",
-   "- Blok/Jalan : {JALAN}.",
-   "Yang diperoleh oleh Pemegang Hak berdasarkan {DASAR_PEROLEHAN}.",
-   "Sertipikat dan bukti pemilikan tersebut diperlihatkan kepada saya, Notaris, untuk keperluan pembuatan Surat Kuasa Membebankan Hak Tanggungan ini.",
-   "Obyek Hak Tanggungan ini meliputi pula bangunan, tanaman dan hasil karya yang telah ada atau akan ada yang merupakan satu kesatuan dengan tanah tersebut.",
-   "Kuasa ini meliputi kuasa untuk menghadap dimana perlu, memberikan keterangan, memperlihatkan dan menyerahkan surat-surat, menandatangani Akta Pemberian Hak Tanggungan serta surat-surat lain yang diperlukan, memilih domisili, mendaftarkan Hak Tanggungan, serta memberikan dan menyetujui janji-janji sebagaimana dimaksud dalam Pasal 11 ayat (2) Undang-Undang Nomor 4 Tahun 1996 tentang Hak Tanggungan, yang disetujui oleh Pemberi Kuasa.",
-   "Kuasa ini tidak dapat ditarik kembali dan tidak berakhir oleh sebab apapun juga, kecuali karena telah dilaksanakan atau karena telah habis jangka waktunya sebagaimana diatur dalam Pasal 15 Undang-Undang Nomor 4 Tahun 1996."
-  ]
  }
 }; })(this);

@@ -6,7 +6,6 @@
         <group id="grpAkta" label="Akta">
           <button id="btnKuasa" label="Akta Kuasa" size="large" imageMso="FileNew" onAction="AkKuasa" screentip="Buat akta Kuasa dari template, nomor akta otomatis"/>
           <button id="btnPPJB" label="Akta PPJB" size="large" imageMso="FileNew" onAction="AkPPJB" screentip="Buat akta Pengikatan Jual Beli"/>
-          <button id="btnSKMHT" label="SKMHT" size="large" imageMso="FileNew" onAction="AkSKMHT" screentip="Surat Kuasa Membebankan Hak Tanggungan"/>
           <button id="btnIsi" label="Isi Data Pihak" size="large" imageMso="ContactCardCreate" onAction="AkIsiData" screentip="Isi data sekali, terisi di semua tempat"/>
           <button id="btnSalinan" label="Jadikan Salinan" size="large" imageMso="Copy" onAction="AkSalinan" screentip="Buat SALINAN di dokumen baru; minuta tidak diubah"/>
           <button id="btnRep" label="Catat Repertorium" size="large" imageMso="TableInsert" onAction="AkRepertorium"/>

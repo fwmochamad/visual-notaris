@@ -10,7 +10,6 @@ End Sub
 
 Public Sub AkKuasa(control As IRibbonControl): BuatTemplate "kuasa": End Sub
 Public Sub AkPPJB(control As IRibbonControl): BuatTemplate "jualbeli": End Sub
-Public Sub AkSKMHT(control As IRibbonControl): BuatTemplate "skmht": End Sub
 Public Sub AkLuas(control As IRibbonControl): SisipLuas: End Sub
 Public Sub AkHalaman(control As IRibbonControl): AturHalamanAkta: End Sub
 Public Sub AkIsiData(control As IRibbonControl): IsiDataPihak: End Sub
