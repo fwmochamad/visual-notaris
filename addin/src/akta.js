@@ -11,7 +11,7 @@
     '<pkg:part pkg:name="/word/_rels/document.xml.rels" pkg:contentType="application/vnd.openxmlformats-package.relationships+xml"><pkg:xmlData>' +
     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships></pkg:xmlData></pkg:part>' +
     '<pkg:part pkg:name="/word/document.xml" pkg:contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"><pkg:xmlData>' +
-    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p/></w:body></w:document></pkg:xmlData></pkg:part>' +
+    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:pPr><w:pStyle w:val="AktaGaris"/></w:pPr></w:p></w:body></w:document></pkg:xmlData></pkg:part>' +
     '<pkg:part pkg:name="/word/styles.xml" pkg:contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"><pkg:xmlData>' +
     '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
     '<w:style w:type="paragraph" w:customStyle="1" w:styleId="AktaGaris"><w:name w:val="' + STYLE + '"/><w:basedOn w:val="Normal"/><w:qFormat/>' +
@@ -30,6 +30,7 @@
   }
 
   function pastikanStyle(ctx) {
+    // Paragraf dalam paket memakai style tersebut, sebab Word Online membuang style yang tidak dipakai.
     // Menyisipkan paket berisi definisi style; Word menambahkan style bila belum ada. Paragraf kosong sisaannya dihapus.
     var r = ctx.document.body.insertParagraph("", "End");
     r.insertOoxml(STYLE_OOXML, "Replace");
