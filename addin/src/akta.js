@@ -32,17 +32,55 @@
   function pastikanStyle(ctx) {
     // Paragraf dalam paket memakai style tersebut, sebab Word Online membuang style yang tidak dipakai.
     // Menyisipkan paket berisi definisi style; Word menambahkan style bila belum ada. Paragraf kosong sisaannya dihapus.
-    var r = ctx.document.body.insertParagraph("", "End");
-    r.insertOoxml(STYLE_OOXML, "Replace");
+    var awal = ctx.document.body.paragraphs; awal.load("items");
     return ctx.sync().then(function () {
-      var ps = ctx.document.body.paragraphs; ps.load("items/text");
+      var jumlah = awal.items.length;
+      var r = ctx.document.body.insertParagraph("", "End");
+      r.insertOoxml(STYLE_OOXML, "Replace");
       return ctx.sync().then(function () {
-        var last = ps.items[ps.items.length - 1];
-        if (last.text === "") last.delete();
-        return ctx.sync();
+        // Semua paragraf kosong tambahan di akhir dihapus (Word Online bisa menambah lebih dari satu).
+        var ps = ctx.document.body.paragraphs; ps.load("items/text");
+        return ctx.sync().then(function () {
+          for (var i = ps.items.length - 1; i >= jumlah && i > 0; i--) {
+            if (ps.items[i].text === "") ps.items[i - 1].getRange("End").expandTo(ps.items[i].getRange("Whole")).delete();
+          }
+          return ctx.sync().then(null, function () { return null; });
+        });
       });
     });
   }
+
+  // Cadangan bila style tidak bisa dibuat (Word Online): tab kanan ber-leader strip ditanam langsung
+  // di properti tiap paragraf lewat OOXML paragraf itu sendiri, lalu tab ditambahkan di akhir.
+  var SEBELUM_TABS = /<w:(suppressAutoHyphens|kinsoku|wordWrap|overflowPunct|topLinePunct|autoSpaceDE|autoSpaceDN|bidi|adjustRightInd|snapToGrid|spacing|ind|contextualSpacing|mirrorIndents|suppressOverlap|jc|textDirection|textAlignment|textboxTightWrap|outlineLvl|divId|cnfStyle|rPr|sectPr|pPrChange)[ \/>]|<\/w:pPr>/;
+  var TAB_GARIS = '<w:tabs><w:tab w:val="right" w:leader="hyphen" w:pos="9638"/></w:tabs>';
+  var RUN_TAB = '<w:r><w:rPr><w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/><w:sz w:val="24"/></w:rPr><w:tab/></w:r>';
+  function ubahOoxmlGaris(ox, sudahTab) {
+    var awal = ox.search(/<w:p[ >]/); if (awal < 0) return null;
+    var tutupP = ox.indexOf(">", awal) + 1;
+    if (ox.substr(tutupP, 7) !== "<w:pPr>") { ox = ox.slice(0, tutupP) + "<w:pPr></w:pPr>" + ox.slice(tutupP); }
+    var mulaiPPr = tutupP + 7, akhirPPr = ox.indexOf("</w:pPr>", mulaiPPr);
+    var pPr = ox.slice(mulaiPPr, akhirPPr);
+    if (pPr.indexOf("<w:tabs>") < 0) {
+      var i = pPr.search(SEBELUM_TABS); if (i < 0) i = pPr.length;
+      pPr = pPr.slice(0, i) + TAB_GARIS + pPr.slice(i);
+    }
+    ox = ox.slice(0, mulaiPPr) + pPr + ox.slice(akhirPPr);
+    if (!sudahTab) { var akhir = ox.lastIndexOf("</w:p>"); ox = ox.slice(0, akhir) + RUN_TAB + ox.slice(akhir); }
+    return ox;
+  }
+  function garisOoxml(ctx, target) {
+    var data = target.map(function (p) { return { p: p, ox: p.getOoxml() }; });
+    return ctx.sync().then(function () {
+      var n = 0;
+      data.forEach(function (d) {
+        var baru = ubahOoxmlGaris(d.ox.value, /\t$/.test(d.p.text));
+        if (baru) { d.p.insertOoxml(baru, "Replace"); n++; }
+      });
+      return ctx.sync().then(function () { status("Garis dipasang pada " + n + " paragraf."); });
+    });
+  }
+  if (typeof module !== "undefined") module.exports = { ubahOoxmlGaris: ubahOoxmlGaris };
 
   /* 1. Garis akta: tab-leader strip di akhir paragraf terpilih (judul rata tengah & paragraf kosong dilewati) */
   function pasangGaris() {
@@ -50,14 +88,26 @@
       return pastikanStyle(ctx).then(function () {
         var ps = ctx.document.getSelection().paragraphs; ps.load("items/text,items/alignment");
         return ctx.sync().then(function () {
-          var n = 0;
-          ps.items.forEach(function (p) {
-            if (p.alignment === "Centered" || p.alignment === "Right" || !p.text) return;
-            var rata = p.alignment;
-            p.style = STYLE; p.alignment = rata;
-            if (!/\t$/.test(p.text)) { p.insertText("\t", "End"); n++; }
+          var target = ps.items.filter(function (p) { return !(p.alignment === "Centered" || p.alignment === "Right" || !p.text); });
+          if (!target.length) { status("Tidak ada paragraf yang perlu digaris."); return null; }
+          // Nama style bisa berbeda antar-versi Word (nama tampilan vs styleId): coba satu per satu pada paragraf pertama.
+          var calon = [STYLE, "AktaGaris"];
+          function cobaStyle(i) {
+            if (i >= calon.length) return ctx.sync().then(function () { return null; });
+            var rata = target[0].alignment;
+            target[0].style = calon[i]; target[0].alignment = rata;
+            return ctx.sync().then(function () { return calon[i]; }, function () { return cobaStyle(i + 1); });
+          }
+          return cobaStyle(0).then(function (nama) {
+            if (!nama) return garisOoxml(ctx, target);
+            var n = 0;
+            target.forEach(function (p) {
+              var rata = p.alignment;
+              p.style = nama; p.alignment = rata;
+              if (!/\t$/.test(p.text)) { p.insertText("\t", "End"); n++; }
+            });
+            return ctx.sync().then(function () { status("Garis dipasang pada " + n + " paragraf."); });
           });
-          return ctx.sync().then(function () { status("Garis dipasang pada " + n + " paragraf."); });
         });
       });
     }).catch(fail);
