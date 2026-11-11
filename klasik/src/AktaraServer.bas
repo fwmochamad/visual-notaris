@@ -4,7 +4,7 @@ Attribute VB_Name = "AktaraServer"
 Option Explicit
 
 Private Const APP As String = "Aktara"
-Private Const SERVER_PRODUKSI As String = "https://aktara-api.onrender.com"
+Private Const SERVER_PRODUKSI As String = "https://aktara-api-production.up.railway.app"
 Private Const SERVER_DEV As String = "https://localhost:8080"
 
 Private Function Ambil(ByVal kunci As String, Optional ByVal bawaan As String = "") As String

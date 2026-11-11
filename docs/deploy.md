@@ -3,7 +3,7 @@
 | Bagian | Layanan | Alamat |
 |---|---|---|
 | File add-in Edisi Modern | GitHub Pages (otomatis lewat `.github/workflows/pages.yml`) | `https://fwmochamad.github.io/visual-notaris/` |
-| Server API | Render, paket free, region Singapura (`render.yaml`) | `https://aktara-api.onrender.com` |
+| Server API | Render, paket free, region Singapura (`render.yaml`) | `https://aktara-api-production.up.railway.app` |
 | Database | Neon Postgres, paket free, region Singapura | via `DATABASE_URL` |
 
 ## 1. Neon
@@ -13,7 +13,7 @@
 ## 2. Render
 1. Daftar di render.com (login GitHub) › **New › Blueprint** › pilih repo `visual-notaris` (file `render.yaml` terbaca otomatis).
 2. Isi `DATABASE_URL` dengan connection string Neon. `AKTARA_SECRET` dan `AKTARA_ADMIN_KEY` dibuat otomatis — lihat nilainya di tab Environment.
-3. Setelah live, cek `https://aktara-api.onrender.com/api/health` → `"db":"postgres"`.
+3. Setelah live, cek `https://aktara-api-production.up.railway.app/api/health` → `"db":"postgres"`.
    Bila nama `aktara-api` sudah dipakai orang lain, Render memberi nama lain: set variabel repo GitHub `AKTARA_API` ke alamat tersebut.
 
 ## 3. GitHub Pages
@@ -22,7 +22,7 @@ Manifest untuk dipasang di Word: `https://fwmochamad.github.io/visual-notaris/ma
 
 ## 4. Membuat lisensi pelanggan
 ```
-curl -X POST https://aktara-api.onrender.com/api/admin/kantor \
+curl -X POST https://aktara-api-production.up.railway.app/api/admin/kantor \
   -H "X-Admin-Key: <AKTARA_ADMIN_KEY>" -H "Content-Type: application/json" \
   -d '{"nama":"Kantor Notaris Contoh","berlaku_sampai":"2027-12-31","maks_perangkat":3}'
 ```
