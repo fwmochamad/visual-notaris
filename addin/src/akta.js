@@ -119,7 +119,13 @@
         }
         paras.push(last);
       });
+      // Paragraf yang diawali {ISIAN} membuat proxy paragrafnya tidak andal di Word Online, sehingga
+      // format diterapkan lewat koleksi paragraf dari seluruh rentang akta.
+      var rentang = paras[0].getRange("Whole").expandTo(paras[paras.length - 1].getRange("Whole"));
+      var semua = rentang.paragraphs; semua.load("items");
       return ctx.sync().then(function () {
+        if (semua.items.length === paras.length) paras = semua.items;
+        rentang.font.name = "Courier New"; rentang.font.size = 12;
         paras.forEach(function (p, i) {
           // Format praktik akta: Courier New 12, spasi tepat 25 pt, rata kiri-kanan
           p.font.name = "Courier New"; p.font.size = 12; p.lineSpacing = 25; p.spaceAfter = 0;
